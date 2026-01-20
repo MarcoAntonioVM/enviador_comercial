@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════════
+   INSTRUCCIONES: CREAR ARCHIVO .env
+═══════════════════════════════════════════════════════════════
+
+1. Abre un editor de texto (Notepad, VSCode, etc.)
+
+2. Copia TODO el contenido de abajo (desde NODE_ENV hasta MAX_FILE_SIZE)
+
+3. Guarda el archivo como:  .env  (exactamente así, con el punto)
+   En la carpeta raíz del proyecto (donde está package.json)
+
+4. IMPORTANTE: Cambia la línea DB_PASSWORD= y pon tu contraseña de MySQL
+
+═══════════════════════════════════════════════════════════════
+   CONTENIDO DEL ARCHIVO .env (copiar desde aquí)
+═══════════════════════════════════════════════════════════════
+
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=envios_commercial
+DB_USER=root
+DB_PASSWORD=
+
+JWT_SECRET=mi-super-secreto-jwt-cambiar-en-produccion-2026
+JWT_EXPIRES_IN=24h
+JWT_REFRESH_EXPIRES_IN=7d
+
+BCRYPT_ROUNDS=10
+MAX_LOGIN_ATTEMPTS=5
+
+BREVO_API_KEY=
+BREVO_WEBHOOK_SECRET=
+
+TRACKING_DOMAIN=
+DEFAULT_TIMEZONE=America/Mexico_City
+EMAIL_DAILY_LIMIT=2000
+
+CORS_ORIGIN=http://localhost:3000
+
+UPLOAD_DIR=uploads
+MAX_FILE_SIZE=10485760
+
+═══════════════════════════════════════════════════════════════
+   COPIAR HASTA AQUÍ
+═══════════════════════════════════════════════════════════════
+
+EJEMPLO con password:
+
+DB_PASSWORD=mipassword123
+
+o si usas WAMP sin password:
+
+DB_PASSWORD=
+
+(déjalo vacío como está)
+
+═══════════════════════════════════════════════════════════════

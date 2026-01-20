@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta de Proyecto Comercial</title>
+    <style>
+        :root {
+            --primary: #1a5c96;
+            --secondary: #4b6584;
+            --accent: #27ae60;
+            --bg: #f8fbff;
+            --text: #2d3436;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .main-card {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border-top: 8px solid var(--primary);
+        }
+        .header {
+            padding: 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f7ff 100%);
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .box {
+            background: #fdfdfd;
+            border: 1px solid #edf2f7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: #ffffff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .feature-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--secondary);
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-pill {
+            background: #eef2f7;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #b2bec3;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <div class="header">
+        <h1>Automatización y Estadísticas de Envío de Credenciales</h1>
+        <div class="badge">Área Comercial</div>
+    </div>
+
+    <div class="content">
+        <div class="section-title">Antecedentes</div>
+        <div class="box" style="background-color: #fff9f0; border-color: #ffe4b3;">
+            Actualmente se cuenta con una herramienta para el envío automatizado de credenciales que ya contempla los requisitos operativos básicos. Sin embargo, carece de métricas y estadísticas que permitan medir el desempeño. Esta limitación impide conocer datos críticos como aperturas o reportes de spam, dificultando la toma de decisiones estratégicas.
+        </div>
+
+        <div class="section-title">Alcance del Proyecto</div>
+        <div class="grid">
+            <div class="feature-card">
+                <h4>Gestión de Documentos</h4>
+                <ul>
+                    <li>Soporte para archivos PDF y formatos estándar</li>
+                    <li>Manejo seguro de documentos adjuntos</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h4>Plantillas y Personalización</h4>
+                <ul>
+                    <li>Diseño y gestión de plantillas por sector</li>
+                    <li>Personalización de campos (Nombre, Empresa)</li>
+                    <li>Edición de asunto y firma personalizada</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h4>Configuración de Envío</h4>
+                <ul>
+                    <li>Envíos masivos e individuales</li>
+                    <li>Gestión de múltiples destinatarios y remitentes</li>
+                    <li>Edición de campos "De" y nombre de remitente</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h4>Integración y Automatización</h4>
+                <ul>
+                    <li>Conexión directa a base de datos de prospectos</li>
+                    <li>Automatización integral del envío de credenciales</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title">Reportes y Visualización</div>
+        <p>El sistema proporcionará visibilidad detallada sobre los siguientes indicadores de desempeño:</p>
+        <div class="stats-container">
+            <div class="stat-pill">Correos Enviados</div>
+            <div class="stat-pill">Correos Entregados</div>
+            <div class="stat-pill">Aperturas</div>
+            <div class="stat-pill">Rebotes</div>
+            <div class="stat-pill">Reportes de Spam</div>
+            <div class="stat-pill">Clics</div>
+        </div>
+    </div>
+    <footer>
+        Documento de Especificaciones Técnicas - Proyecto de Automatización
+    </footer>
+</div>
+
+</body>
+</html>

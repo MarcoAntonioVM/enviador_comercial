@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Base de Datos Sistema de Envío Automatizado</title>
+    <style>
+        :root {
+            --primary: #1a5c96;
+            --secondary: #4b6584;
+            --accent: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --bg: #f8fbff;
+            --text: #2d3436;
+            --border: #dfe6e9;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent);
+            display: inline-block;
+        }
+        .section-subtitle {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin: 30px 0 15px 0;
+            padding-left: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        .intro-text {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+        }
+        .table-card {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            margin: 25px 0;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .table-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        .table-body {
+            padding: 25px;
+        }
+        .field-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fafbfc;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+        .field-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.05rem;
+            margin-bottom: 5px;
+        }
+        .field-type {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+        .field-constraint {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+        .field-fk {
+            display: inline-block;
+            background: var(--danger);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .field-description {
+            margin-top: 8px;
+            color: #636e72;
+            line-height: 1.5;
+        }
+        .relationships {
+            background: #fff9f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px dashed var(--warning);
+        }
+        .relationship-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .diagram-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 30px 0;
+        }
+        .diagram {
+            min-width: 1200px;
+        }
+        .diagram-box {
+            display: inline-block;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            margin: 15px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            vertical-align: top;
+            width: 280px;
+        }
+        .diagram-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        .diagram-fields {
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+        .diagram-field {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .diagram-field:last-child {
+            border-bottom: none;
+        }
+        .pk {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .fk {
+            color: var(--danger);
+            font-style: italic;
+        }
+        .key-concepts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .concept-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .concept-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        .concept-card p {
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+        .index-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid var(--accent);
+        }
+        .index-title {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .flow-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .flow-step {
+            display: inline-block;
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            position: relative;
+        }
+        .flow-arrow {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0 10px;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .section {
+                padding: 20px;
+            }
+            .diagram {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>📊 Documentación de Base de Datos</h1>
+        <p>Sistema de Automatización de Envío de Credenciales y Tracking de Estadísticas</p>
+    </div>
+
+    <!-- Introducción -->
+    <div class="section">
+        <h2 class="section-title">Introducción</h2>
+        <div class="intro-text">
+            <p><strong>Propósito del Sistema:</strong> Esta base de datos está diseñada para soportar un sistema completo de automatización de envío masivo de correos electrónicos con credenciales, permitiendo el seguimiento detallado de métricas de desempeño como aperturas, clics, rebotes y reportes de spam mediante integración con <strong>Brevo</strong>.</p>
+            <br>
+            <p><strong>Características principales:</strong></p>
+            <ul style="margin-left: 25px; margin-top: 10px;">
+                <li>Gestión de campañas de envío masivo e individual</li>
+                <li>Sistema de plantillas personalizables por sector</li>
+                <li><strong>Integración con Brevo</strong> para tracking avanzado de eventos</li>
+                <li>Soporte para múltiples remitentes y destinatarios</li>
+                <li>Gestión de documentos adjuntos</li>
+                <li>Sistema de colas para envíos automatizados</li>
+                <li>Generación de reportes consolidados (local + Brevo)</li>
+            </ul>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #00C48C 0%, #00A375 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin: 0 0 10px 0;">📄 Script SQL Disponible</h3>
+            <p style="margin: 0; opacity: 0.95;">El archivo <code style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">database_schema.sql</code> contiene el script completo para crear todas las tablas con las relaciones, índices y datos iniciales.</p>
+        </div>
+    </div>
+
+    <!-- Conceptos Clave -->
+    <div class="section">
+        <h2 class="section-title">Conceptos Clave de la Arquitectura</h2>
+        <div class="key-concepts">
+            <div class="concept-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h3>🎯 Campaña</h3>
+                <p>Una campaña representa un envío masivo o programado de correos. Agrupa múltiples envíos bajo una misma configuración de plantilla, remitente y destinatarios.</p>
+            </div>
+            <div class="concept-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3>📧 Email Send</h3>
+                <p>Cada registro individual de un correo enviado a un prospecto específico. Permite rastrear el estado de cada envío de forma independiente.</p>
+            </div>
+            <div class="concept-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3>📊 Integración Brevo</h3>
+                <p>Brevo maneja todo el tracking de eventos: aperturas, clics, rebotes y spam. El sistema sincroniza datos mediante webhooks y API de Brevo.</p>
+            </div>
+            <div class="concept-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <h3>🔄 Automatización</h3>
+                <p>Jobs y colas que procesan envíos masivos de forma controlada, respetando límites de envío y manejando reintentos en caso de fallos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modelo Relacional Visual -->
+    <div class="section">
+        <h2 class="section-title">Modelo Relacional</h2>
+        <p style="margin: 20px 0;">A continuación se muestra el esquema visual de las tablas principales y sus relaciones:</p>
+        
+        <div class="diagram-container">
+            <div class="diagram">
+                <!-- Usuarios -->
+                <div class="diagram-box">
+                    <div class="diagram-header">👤 users</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">email</div>
+                        <div class="diagram-field">password_hash</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field">role</div>
+                        <div class="diagram-field">active</div>
+                    </div>
+                </div>
+
+                <!-- Sectores -->
+                <div class="diagram-box">
+                    <div class="diagram-header">🏢 sectors</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field">description</div>
+                        <div class="diagram-field">active</div>
+                    </div>
+                </div>
+
+                <!-- Prospectos -->
+                <div class="diagram-box">
+                    <div class="diagram-header">👥 prospects</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">email</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field">company</div>
+                        <div class="diagram-field fk">🔗 sector_id (FK)</div>
+                        <div class="diagram-field">status</div>
+                        <div class="diagram-field">metadata</div>
+                    </div>
+                </div>
+
+                <!-- Plantillas -->
+                <div class="diagram-box">
+                    <div class="diagram-header">📝 email_templates</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field fk">🔗 sector_id (FK)</div>
+                        <div class="diagram-field">subject</div>
+                        <div class="diagram-field">html_content</div>
+                        <div class="diagram-field">variables</div>
+                        <div class="diagram-field fk">🔗 created_by (FK)</div>
+                    </div>
+                </div>
+
+                <!-- Remitentes -->
+                <div class="diagram-box">
+                    <div class="diagram-header">📮 senders</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field">email</div>
+                        <div class="diagram-field">reply_to</div>
+                        <div class="diagram-field">signature</div>
+                        <div class="diagram-field">daily_limit</div>
+                    </div>
+                </div>
+
+                <!-- Campañas -->
+                <div class="diagram-box">
+                    <div class="diagram-header">🎯 campaigns</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field fk">🔗 template_id (FK)</div>
+                        <div class="diagram-field fk">🔗 sender_id (FK)</div>
+                        <div class="diagram-field fk">🔗 sector_id (FK)</div>
+                        <div class="diagram-field">type</div>
+                        <div class="diagram-field">scheduled_at</div>
+                        <div class="diagram-field fk">🔗 created_by (FK)</div>
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div class="diagram-box">
+                    <div class="diagram-header">📄 documents</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field">name</div>
+                        <div class="diagram-field">file_path</div>
+                        <div class="diagram-field">file_type</div>
+                        <div class="diagram-field fk">🔗 sector_id (FK)</div>
+                        <div class="diagram-field fk">🔗 uploaded_by (FK)</div>
+                    </div>
+                </div>
+
+                <!-- Email Sends -->
+                <div class="diagram-box">
+                    <div class="diagram-header">📧 email_sends</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field fk">🔗 campaign_id (FK)</div>
+                        <div class="diagram-field fk">🔗 prospect_id (FK)</div>
+                        <div class="diagram-field fk">🔗 sender_id (FK)</div>
+                        <div class="diagram-field">tracking_id</div>
+                        <div class="diagram-field">message_id</div>
+                        <div class="diagram-field">status</div>
+                        <div class="diagram-field">sent_at</div>
+                    </div>
+                </div>
+
+                <!-- Brevo Integration -->
+                <div class="diagram-box" style="border-color: #00C48C; background: #f0fdf9;">
+                    <div class="diagram-header" style="background: linear-gradient(135deg, #00C48C 0%, #00A375 100%);">🔗 Brevo API/Webhooks</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field" style="color: #00A375; font-weight: 600;">📧 Tracking de Eventos</div>
+                        <div class="diagram-field">• Aperturas (opens)</div>
+                        <div class="diagram-field">• Clics (clicks)</div>
+                        <div class="diagram-field">• Rebotes (bounces)</div>
+                        <div class="diagram-field">• Reportes spam</div>
+                        <div class="diagram-field">• Estado de entregas</div>
+                    </div>
+                </div>
+
+                <!-- Campaign Recipients -->
+                <div class="diagram-box">
+                    <div class="diagram-header">🔗 campaign_recipients</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field fk">🔗 campaign_id (FK)</div>
+                        <div class="diagram-field fk">🔗 prospect_id (FK)</div>
+                        <div class="diagram-field">personalized_data</div>
+                    </div>
+                </div>
+
+                <!-- Campaign Documents -->
+                <div class="diagram-box">
+                    <div class="diagram-header">🔗 campaign_documents</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field fk">🔗 campaign_id (FK)</div>
+                        <div class="diagram-field fk">🔗 document_id (FK)</div>
+                    </div>
+                </div>
+
+                <!-- Credentials -->
+                <div class="diagram-box">
+                    <div class="diagram-header">🔐 credentials</div>
+                    <div class="diagram-fields">
+                        <div class="diagram-field pk">🔑 id (PK)</div>
+                        <div class="diagram-field fk">🔗 email_send_id (FK)</div>
+                        <div class="diagram-field">username</div>
+                        <div class="diagram-field">credential_type</div>
+                        <div class="diagram-field">expires_at</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relationships">
+            <h3 style="color: var(--warning); margin-bottom: 15px;">🔗 Relaciones Principales</h3>
+            <div class="relationship-item">➡️ <strong>campaigns</strong> → <strong>email_templates</strong> (Una campaña usa una plantilla)</div>
+            <div class="relationship-item">➡️ <strong>campaigns</strong> → <strong>senders</strong> (Una campaña tiene un remitente)</div>
+            <div class="relationship-item">➡️ <strong>campaigns</strong> → <strong>sectors</strong> (Una campaña puede estar asociada a un sector)</div>
+            <div class="relationship-item">➡️ <strong>email_sends</strong> → <strong>campaigns</strong> (Cada envío pertenece a una campaña)</div>
+            <div class="relationship-item">➡️ <strong>email_sends</strong> → <strong>prospects</strong> (Cada envío va a un prospecto)</div>
+            <div class="relationship-item">➡️ <strong>campaign_recipients</strong> → <strong>campaigns</strong> + <strong>prospects</strong> (Tabla intermedia N:M)</div>
+            <div class="relationship-item">➡️ <strong>campaign_documents</strong> → <strong>campaigns</strong> + <strong>documents</strong> (Tabla intermedia N:M)</div>
+            <div class="relationship-item" style="background: #f0fdf9; border-left: 3px solid #00C48C;">🔗 <strong>Brevo API</strong> → <strong>message_id</strong> (Tracking externo de todos los eventos)</div>
+        </div>
+    </div>
+
+    <!-- Flujo de Datos -->
+    <div class="section">
+        <h2 class="section-title">Flujo de Datos: Proceso de Envío</h2>
+        <div class="flow-diagram">
+            <div class="flow-step">1. Crear Campaña</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">2. Seleccionar Prospectos</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">3. Generar Email Sends</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step" style="border-color: #00C48C; color: #00A375;">4. Enviar vía Brevo</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step" style="border-color: #00C48C; color: #00A375;">5. Brevo Tracking</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step">6. Generar Estadísticas</div>
+        </div>
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="color: var(--primary); margin-bottom: 15px;">Explicación del Flujo:</h3>
+            <ol style="margin-left: 25px; line-height: 2;">
+                <li><strong>Crear Campaña:</strong> Se crea un registro en <code>campaigns</code> con plantilla, remitente y configuración</li>
+                <li><strong>Seleccionar Prospectos:</strong> Se vinculan prospectos en <code>campaign_recipients</code></li>
+                <li><strong>Generar Email Sends:</strong> Se crea un registro en <code>email_sends</code> por cada prospecto con tracking_id único</li>
+                <li><strong>Enviar vía Brevo:</strong> El sistema de colas envía correos a través de la API de Brevo y guarda el <code>message_id</code></li>
+                <li><strong>Brevo Tracking:</strong> Brevo rastrea automáticamente aperturas, clics, rebotes. Los webhooks actualizan el estado en <code>email_sends</code></li>
+                <li><strong>Generar Estadísticas:</strong> Se consulta la API de Brevo y se cruza con datos de <code>email_sends</code> para reportes completos</li>
+            </ol>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 20px; background: #f0fdf9; border-radius: 8px; border-left: 4px solid #00C48C;">
+            <h3 style="color: #00A375; margin-bottom: 15px;">📧 Integración con Brevo</h3>
+            <p style="margin-bottom: 10px;"><strong>Brevo maneja:</strong></p>
+            <ul style="margin-left: 25px; line-height: 2;">
+                <li>✅ Envío real de correos electrónicos</li>
+                <li>✅ Tracking de aperturas (opens)</li>
+                <li>✅ Tracking de clics en enlaces (clicks)</li>
+                <li>✅ Detección y registro de rebotes (bounces)</li>
+                <li>✅ Reportes de spam</li>
+                <li>✅ Estado de entregas (delivered/failed)</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>El sistema local maneja:</strong></p>
+            <ul style="margin-left: 25px; line-height: 2;">
+                <li>✅ Gestión de campañas y prospectos</li>
+                <li>✅ Plantillas personalizadas</li>
+                <li>✅ Cola de envíos con rate limiting</li>
+                <li>✅ Registro histórico de envíos</li>
+                <li>✅ Reportes consolidados (cruce de datos local + Brevo)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Detalle de Tablas -->
+    <div class="section">
+        <h2 class="section-title">Detalle de Tablas y Campos</h2>
+
+        <!-- USERS -->
+        <div class="table-card">
+            <div class="table-header">👤 users - Usuarios del Sistema</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Almacena los usuarios que gestionan el sistema (administradores, comerciales, etc.).</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <span class="field-constraint">AUTO_INCREMENT</span>
+                    <div class="field-description">Identificador único del usuario.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">email</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <span class="field-constraint">UNIQUE</span>
+                    <span class="field-constraint">NOT NULL</span>
+                    <div class="field-description">Correo electrónico del usuario. Usado para login y debe ser único en el sistema.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">password_hash</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <span class="field-constraint">NOT NULL</span>
+                    <div class="field-description">Contraseña hasheada (bcrypt, argon2). Nunca se almacena en texto plano por seguridad.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <span class="field-constraint">NOT NULL</span>
+                    <div class="field-description">Nombre completo del usuario para mostrar en la interfaz.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">role</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">Define permisos: <strong>admin</strong> (gestión completa), <strong>commercial</strong> (crear campañas), <strong>viewer</strong> (solo visualización).</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">active</div>
+                    <span class="field-type">BOOLEAN</span>
+                    <div class="field-description">Permite desactivar usuarios sin eliminarlos. Útil para mantener historial de acciones.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTORS -->
+        <div class="table-card">
+            <div class="table-header">🏢 sectors - Sectores / Categorías</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Categoriza prospectos, plantillas y campañas por sector de negocio (ej: retail, industria, salud).</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único del sector.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre del sector (ej: "Retail", "Educación", "Salud").</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">description</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Descripción detallada del sector y características específicas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">active</div>
+                    <span class="field-type">BOOLEAN</span>
+                    <div class="field-description">Permite desactivar sectores sin perder datos históricos.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">💡 Beneficio de Sectores:</div>
+                    Permite segmentar campañas y usar plantillas específicas por industria, mejorando la personalización y tasas de apertura.
+                </div>
+            </div>
+        </div>
+
+        <!-- PROSPECTS -->
+        <div class="table-card">
+            <div class="table-header">👥 prospects - Prospectos / Destinatarios</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Almacena la base de datos de contactos a los que se enviarán las credenciales.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único del prospecto.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">email</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <span class="field-constraint">NOT NULL</span>
+                    <div class="field-description">Correo electrónico del prospecto. Es el destino del envío.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre del contacto. Usado para personalización de plantillas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">company</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Empresa del prospecto. Variable de personalización en plantillas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sector_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → sectors.id</span>
+                    <div class="field-description">Categoriza el prospecto por sector. Permite filtrar y segmentar campañas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">phone</div>
+                    <span class="field-type">VARCHAR(50)</span>
+                    <div class="field-description">Teléfono opcional para contacto adicional.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">status</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">
+                        Estado del prospecto:<br>
+                        • <strong>active:</strong> Puede recibir emails<br>
+                        • <strong>inactive:</strong> Desactivado temporalmente<br>
+                        • <strong>bounced:</strong> Email rebotó (no existe o buzón lleno)<br>
+                        • <strong>spam_reported:</strong> Marcó como spam (no enviar más)<br>
+                        • <strong>unsubscribed:</strong> Se dio de baja
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">metadata</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Campos adicionales personalizables (puesto, ciudad, etc.). Permite extensibilidad sin modificar esquema.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">📊 Índices Creados:</div>
+                    • <strong>idx_email:</strong> Búsquedas rápidas por email<br>
+                    • <strong>idx_sector:</strong> Filtrado eficiente por sector<br>
+                    • <strong>idx_status:</strong> Consultas rápidas por estado (ej: solo activos)
+                </div>
+            </div>
+        </div>
+
+        <!-- EMAIL TEMPLATES -->
+        <div class="table-card">
+            <div class="table-header">📝 email_templates - Plantillas de Correo</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Almacena plantillas HTML reutilizables con variables dinámicas para personalización.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único de la plantilla.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre identificativo de la plantilla (ej: "Credenciales Retail Q1").</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sector_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → sectors.id</span>
+                    <div class="field-description">Asocia la plantilla a un sector específico. Facilita la selección en campañas segmentadas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">subject</div>
+                    <span class="field-type">VARCHAR(500)</span>
+                    <div class="field-description">Asunto del correo. Puede contener variables como {name}, {company}.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">html_content</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Contenido HTML del email con variables para personalización. Incluye pixel de tracking y links con UTM.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">text_content</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Versión texto plano como fallback. Importante para clientes que no soportan HTML.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">variables</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Lista de variables disponibles: ["name", "company", "username", "password"]. Documenta qué datos se pueden personalizar.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">is_default</div>
+                    <span class="field-type">BOOLEAN</span>
+                    <div class="field-description">Marca la plantilla por defecto para un sector.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">created_by</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → users.id</span>
+                    <div class="field-description">Usuario que creó la plantilla. Útil para auditoría.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">💡 Variables de Personalización:</div>
+                    Las plantillas usan variables entre llaves: {name}, {company}, {username}, {password}. El sistema las reemplaza automáticamente antes del envío.
+                </div>
+            </div>
+        </div>
+
+        <!-- SENDERS -->
+        <div class="table-card">
+            <div class="table-header">📮 senders - Remitentes Configurados</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Define las cuentas de correo desde las cuales se enviarán las campañas.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único del remitente.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre que verá el destinatario (ej: "Equipo Comercial EFINFO").</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">email</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Dirección de correo del remitente (From).</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">reply_to</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Email alternativo para respuestas. Útil si el remitente es noreply@.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">signature</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Firma HTML que se añade al final de cada correo.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">smtp_config</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Configuración SMTP específica si se usan múltiples servidores. Permite distribuir carga.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">is_default</div>
+                    <span class="field-type">BOOLEAN</span>
+                    <div class="field-description">Remitente por defecto para nuevas campañas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">daily_limit</div>
+                    <span class="field-type">INT</span>
+                    <div class="field-description">Límite de envíos diarios. Previene bloqueos por spam. Valor típico: 500-2000 según proveedor.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">⚠️ Importante:</div>
+                    El campo daily_limit es crucial para evitar que proveedores de email (SendGrid, SES) bloqueen la cuenta por exceso de envíos.
+                </div>
+            </div>
+        </div>
+
+        <!-- CAMPAIGNS -->
+        <div class="table-card">
+            <div class="table-header">🎯 campaigns - Campañas de Envío</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Representa cada campaña de envío masivo, agrupando configuración y destinatarios.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único de la campaña.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre descriptivo de la campaña (ej: "Envío Credenciales Q1 2026").</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">description</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Descripción detallada del objetivo y alcance de la campaña.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">template_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → email_templates.id</span>
+                    <div class="field-description">Plantilla que se usará para todos los envíos de esta campaña.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sender_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → senders.id</span>
+                    <div class="field-description">Remitente desde el cual se enviarán los correos.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sector_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → sectors.id</span>
+                    <div class="field-description">Sector objetivo de la campaña (opcional).</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">type</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">
+                        Tipo de envío:<br>
+                        • <strong>individual:</strong> Un solo destinatario<br>
+                        • <strong>massive:</strong> Múltiples destinatarios inmediato<br>
+                        • <strong>scheduled:</strong> Programada para fecha futura
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">scheduled_at</div>
+                    <span class="field-type">TIMESTAMP</span>
+                    <div class="field-description">Fecha y hora programada para inicio automático. El job scheduler la procesa.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">started_at / completed_at</div>
+                    <span class="field-type">TIMESTAMP</span>
+                    <div class="field-description">Registra inicio y fin real. Útil para calcular duración y rendimiento.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">total_recipients</div>
+                    <span class="field-type">INT</span>
+                    <div class="field-description">Contador de destinatarios totales. Se actualiza al agregar prospectos.</div>
+                </div>
+
+                <div style="background: #f0fdf9; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #00C48C;">
+                    <div style="font-weight: 700; color: #00A375; margin-bottom: 8px;">📧 Estado de Campaña con Brevo:</div>
+                    <p style="margin: 0; line-height: 1.6;">El <strong>estado de la campaña</strong> (draft, sending, completed, failed) se calcula dinámicamente consultando los estados de <code>email_sends</code> que están sincronizados con Brevo. Esto evita redundancia y asegura que el estado sea siempre el real.</p>
+                    <p style="margin-top: 10px; margin-bottom: 0; line-height: 1.6;"><strong>Ejemplo:</strong> Si 1000/1000 emails están "delivered" en Brevo → Estado: Completed. Si 500/1000 están "sent" → Estado: Sending.</p>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">📊 Índices Importantes:</div>
+                    • <strong>idx_scheduled:</strong> El scheduler busca eficientemente campañas programadas a ejecutar<br>
+                    • <strong>idx_created_by:</strong> Filtrar campañas por usuario creador
+                </div>
+            </div>
+        </div>
+
+        <!-- CAMPAIGN_RECIPIENTS -->
+        <div class="table-card">
+            <div class="table-header">🔗 campaign_recipients - Destinatarios de Campañas</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Tabla intermedia (N:M) entre campañas y prospectos. Permite que un prospecto esté en múltiples campañas.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">campaign_id + prospect_id</div>
+                    <span class="field-fk">FOREIGN KEYS</span>
+                    <div class="field-description">Relación muchos a muchos. Un prospecto puede estar en varias campañas, y una campaña tiene muchos prospectos.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">personalized_data</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Datos específicos para este prospecto en esta campaña (username/password únicos, ofertas personalizadas).</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">💡 Caso de Uso:</div>
+                    Si necesitas enviar credenciales únicas por prospecto, se almacenan en personalized_data: {"username": "user123", "password": "temp456"}
+                </div>
+            </div>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div class="table-card">
+            <div class="table-header">📄 documents - Documentos Adjuntos</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Gestiona archivos PDF y otros documentos que se adjuntan a los correos.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre descriptivo del documento en el sistema.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">original_filename</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre original del archivo subido. Preserva extensión.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">file_path</div>
+                    <span class="field-type">VARCHAR(500)</span>
+                    <div class="field-description">Ruta donde se almacena (local o S3). Ej: "uploads/2026/01/abc123.pdf"</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">file_type / mime_type</div>
+                    <span class="field-type">VARCHAR</span>
+                    <div class="field-description">Extensión (.pdf, .docx) y tipo MIME (application/pdf). Validación de seguridad.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">file_size</div>
+                    <span class="field-type">INT</span>
+                    <div class="field-description">Tamaño en bytes. Útil para validar límites (ej: max 5MB por archivo).</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">🔒 Seguridad:</div>
+                    Los archivos se almacenan con nombres únicos (UUID) para evitar colisiones y accesos no autorizados.
+                </div>
+            </div>
+        </div>
+
+        <!-- CAMPAIGN_DOCUMENTS -->
+        <div class="table-card">
+            <div class="table-header">🔗 campaign_documents - Documentos por Campaña</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Tabla intermedia que asocia documentos con campañas. Una campaña puede tener múltiples adjuntos.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">campaign_id + document_id</div>
+                    <span class="field-fk">FOREIGN KEYS</span>
+                    <div class="field-description">Permite reutilizar documentos en múltiples campañas sin duplicar archivos.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">💾 Optimización:</div>
+                    Esta estructura evita duplicar archivos. Un manual PDF puede usarse en 10 campañas sin ocupar espacio extra.
+                </div>
+            </div>
+        </div>
+
+        <!-- EMAIL_SENDS -->
+        <div class="table-card">
+            <div class="table-header">📧 email_sends - Registro de Envíos</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Cada fila representa un email individual enviado. Es la tabla central para tracking.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-constraint">PRIMARY KEY</span>
+                    <div class="field-description">Identificador único del envío.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">campaign_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → campaigns.id</span>
+                    <div class="field-description">Campaña a la que pertenece este envío.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">prospect_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → prospects.id</span>
+                    <div class="field-description">Destinatario del correo.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sender_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → senders.id</span>
+                    <div class="field-description">Remitente utilizado para este envío.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">tracking_id</div>
+                    <span class="field-type">VARCHAR(100)</span>
+                    <span class="field-constraint">UNIQUE</span>
+                    <div class="field-description">
+                        <strong>UUID único</strong> generado para este envío. Se usa en:<br>
+                        • Pixel de tracking: /track/open/{tracking_id}<br>
+                        • Links rastreables: /track/click/{tracking_id}<br>
+                        • Asociar eventos de webhooks
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">message_id</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">ID proporcionado por el proveedor (SendGrid, SES). Permite correlacionar con webhooks.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">provider_response</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Respuesta completa del proveedor. Útil para debugging si algo falla.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">status</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">
+                        Estado del envío (sincronizado con Brevo vía webhooks):<br>
+                        • <strong>queued:</strong> En cola local, esperando procesamiento<br>
+                        • <strong>sent:</strong> Enviado a Brevo exitosamente<br>
+                        • <strong>delivered:</strong> Confirmado entregado por webhook de Brevo<br>
+                        • <strong>bounced:</strong> Rebotó (email inválido o buzón lleno)<br>
+                        • <strong>failed:</strong> Error en el envío<br>
+                        • <strong>spam_reported:</strong> Marcado como spam (vía webhook Brevo)
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">sent_at / delivered_at</div>
+                    <span class="field-type">TIMESTAMP</span>
+                    <div class="field-description">Timestamps de envío y confirmación de entrega. Se actualizan automáticamente cuando llegan webhooks de Brevo. Permiten calcular tiempo de entrega.</div>
+                </div>
+
+                <div style="background: #f0fdf9; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #00C48C;">
+                    <div style="font-weight: 700; color: #00A375; margin-bottom: 8px;">📧 Sincronización con Brevo:</div>
+                    <p style="margin: 0; line-height: 1.6;">
+                        Esta tabla actúa como <strong>registro local</strong> de envíos. El <code>message_id</code> es la clave de correlación con Brevo. 
+                        Cuando Brevo envía webhooks (delivered, bounced, spam), el sistema busca por <code>message_id</code> o <code>tracking_id</code> 
+                        y actualiza el <code>status</code> correspondiente.
+                    </p>
+                    <p style="margin: 10px 0 0 0; line-height: 1.6;">
+                        <strong>Para eventos detallados</strong> (aperturas, clics, IP, user agent), se consulta directamente la API de Brevo cuando se generan reportes.
+                    </p>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">🎯 Índices Críticos:</div>
+                    • <strong>idx_tracking:</strong> Búsqueda ultrarrápida cuando llega webhook de Brevo<br>
+                    • <strong>idx_message_id:</strong> Correlación con eventos de Brevo<br>
+                    • <strong>idx_campaign:</strong> Estadísticas por campaña<br>
+                    • <strong>idx_status:</strong> Reportes de tasa de entrega
+                </div>
+            </div>
+        </div>
+
+        <!-- INTEGRACIÓN BREVO -->
+        <div class="table-card" style="border: 3px solid #00C48C; background: linear-gradient(135deg, #ffffff 0%, #f0fdf9 100%);">
+            <div class="table-header" style="background: linear-gradient(135deg, #00C48C 0%, #00A375 100%);">📧 Integración con Brevo - Tracking de Eventos</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px; font-size: 1.05rem;"><strong>🎯 Decisión Arquitectural:</strong> En lugar de almacenar eventos en una tabla local, el sistema se integra directamente con la plataforma <strong>Brevo</strong> para aprovechar su infraestructura robusta de tracking.</p>
+                
+                <div class="section-subtitle" style="margin-top: 25px; color: #00A375;">📊 Eventos Rastreados por Brevo</div>
+                
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🟢 OPEN (Apertura)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Cuando el destinatario abre el correo<br>
+                        <strong>Tecnología:</strong> Pixel de tracking 1x1<br>
+                        <strong>Datos disponibles:</strong> IP, user agent, dispositivo, cliente de correo, timestamp, geolocalización
+                    </div>
+                </div>
+
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🟢 CLICK (Clic en Enlaces)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Clics en cualquier enlace del correo<br>
+                        <strong>Tecnología:</strong> URLs reescritas con tracking<br>
+                        <strong>Datos disponibles:</strong> URL clickeada, posición del link, timestamp, IP, dispositivo
+                    </div>
+                </div>
+
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🟢 DELIVERED (Entregado)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Confirmación de que el servidor receptor aceptó el email<br>
+                        <strong>Tecnología:</strong> Respuesta SMTP del servidor destino<br>
+                        <strong>Datos disponibles:</strong> Timestamp de entrega, servidor receptor
+                    </div>
+                </div>
+
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🔴 BOUNCE (Rebote)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Email rechazado por el servidor destino<br>
+                        <strong>Tipos:</strong> Hard bounce (email no existe) / Soft bounce (buzón lleno, temporal)<br>
+                        <strong>Datos disponibles:</strong> Razón del rebote, código SMTP, mensaje de error
+                    </div>
+                </div>
+
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🔴 SPAM (Reporte de Spam)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Usuario marcó el correo como spam<br>
+                        <strong>Acción automática:</strong> Brevo desuscribe automáticamente al usuario<br>
+                        <strong>Datos disponibles:</strong> Timestamp, proveedor de email
+                    </div>
+                </div>
+
+                <div class="field-group" style="background: white; border-left-color: #00C48C;">
+                    <div class="field-name" style="color: #00A375;">🔴 UNSUBSCRIBE (Baja)</div>
+                    <div class="field-description">
+                        <strong>Qué registra:</strong> Usuario se dio de baja mediante link<br>
+                        <strong>Acción automática:</strong> Se añade a lista de supresión de Brevo<br>
+                        <strong>Datos disponibles:</strong> Timestamp, método (link o respuesta automática)
+                    </div>
+                </div>
+
+                <div class="section-subtitle" style="margin-top: 30px; color: #00A375;">🔗 Métodos de Integración</div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 2px solid #e0e0e0;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px;">1️⃣ Webhooks de Brevo</h4>
+                    <p style="margin-bottom: 10px;"><strong>Funcionamiento:</strong> Brevo envía notificaciones HTTP POST en tiempo real cuando ocurre un evento.</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px; font-family: monospace; font-size: 0.9rem;">
+                        POST https://tu-sistema.com/api/webhooks/brevo<br>
+                        {<br>
+                        &nbsp;&nbsp;"event": "open",<br>
+                        &nbsp;&nbsp;"message_id": "abc123...",<br>
+                        &nbsp;&nbsp;"email": "usuario@example.com",<br>
+                        &nbsp;&nbsp;"date": "2026-01-14T10:30:00Z",<br>
+                        &nbsp;&nbsp;"ip": "192.168.1.1",<br>
+                        &nbsp;&nbsp;"user_agent": "Mozilla/5.0..."<br>
+                        }
+                    </div>
+                    <p style="margin-top: 15px;"><strong>Ventajas:</strong> Actualización en tiempo real, no requiere polling, bajo consumo de recursos</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 2px solid #e0e0e0;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px;">2️⃣ API de Estadísticas de Brevo</h4>
+                    <p style="margin-bottom: 10px;"><strong>Funcionamiento:</strong> Consultas bajo demanda a la API REST de Brevo para obtener estadísticas agregadas.</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px; font-family: monospace; font-size: 0.9rem;">
+                        GET https://api.brevo.com/v3/smtp/statistics/events<br>
+                        ?startDate=2026-01-01<br>
+                        &endDate=2026-01-31<br>
+                        &messageId=abc123...
+                    </div>
+                    <p style="margin-top: 15px;"><strong>Ventajas:</strong> Datos históricos completos, reportes agregados, filtros avanzados</p>
+                </div>
+
+                <div class="section-subtitle" style="margin-top: 30px; color: #00A375;">📈 Cruce de Datos: Sistema Local ↔ Brevo</div>
+
+                <div style="background: #fff9f0; padding: 20px; border-radius: 8px; margin: 15px 0; border-left: 4px solid var(--warning);">
+                    <h4 style="color: var(--warning); margin-bottom: 15px;">🔄 Flujo de Sincronización</h4>
+                    <ol style="margin-left: 20px; line-height: 2;">
+                        <li><strong>Envío:</strong> Sistema guarda en <code>email_sends</code> con <code>message_id</code> de Brevo</li>
+                        <li><strong>Webhook:</strong> Brevo notifica eventos → Sistema actualiza <code>status</code> en <code>email_sends</code></li>
+                        <li><strong>Consulta:</strong> Para reportes, se consulta API de Brevo usando <code>message_id</code> como clave</li>
+                        <li><strong>Consolidación:</strong> El backend cruza datos locales (prospectos, campañas) con estadísticas de Brevo</li>
+                    </ol>
+                </div>
+
+                <div class="index-info" style="background: #e8f5e9; border-left-color: #00C48C;">
+                    <div class="index-title" style="color: #00A375;">✅ Ventajas de Esta Arquitectura:</div>
+                    <strong>1. Sin Duplicación:</strong> Brevo ya almacena eventos, no necesitamos replicarlos<br>
+                    <strong>2. Siempre Actualizado:</strong> Los datos vienen directo de la fuente autoritativa<br>
+                    <strong>3. Escalabilidad:</strong> Brevo maneja millones de eventos sin impacto en nuestra BD<br>
+                    <strong>4. Infraestructura Probada:</strong> Aprovechamos la robustez de una plataforma profesional<br>
+                    <strong>5. Cumplimiento:</strong> Brevo gestiona automáticamente listas de supresión y GDPR
+                </div>
+
+                <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #ffc107;">
+                    <strong style="color: #856404;">⚠️ Consideración Importante:</strong>
+                    <p style="margin: 10px 0 0 0; color: #856404;">Aunque Brevo maneja los eventos, el campo <code>message_id</code> en <code>email_sends</code> es CRÍTICO. Es la llave que permite correlacionar nuestros registros locales con las estadísticas de Brevo. Siempre debe guardarse al enviar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CREDENTIALS -->
+        <div class="table-card">
+            <div class="table-header">🔐 credentials - Credenciales Enviadas</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Registra las credenciales específicas enviadas en cada correo para auditoría y soporte.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">email_send_id</div>
+                    <span class="field-type">INT</span>
+                    <span class="field-fk">FOREIGN KEY → email_sends.id</span>
+                    <div class="field-description">Vincula la credencial con el envío de correo.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">username</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Usuario enviado. Debe estar encriptado si contiene datos sensibles.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">credential_type</div>
+                    <span class="field-type">VARCHAR(100)</span>
+                    <div class="field-description">Tipo de credencial: "access_portal", "api_key", "temporary_pass", etc.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">expires_at</div>
+                    <span class="field-type">TIMESTAMP</span>
+                    <div class="field-description">Fecha de expiración. Permite cleanup automático de credenciales vencidas.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">metadata</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Información adicional: permisos, intentos de login, URL de activación, etc.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">🔒 Seguridad Crítica:</div>
+                    Las contraseñas NUNCA deben guardarse en texto plano. Considera:<br>
+                    • Encriptación AES-256<br>
+                    • Almacenar solo hash si es posible<br>
+                    • Usar credenciales temporales que expiran
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM_CONFIG -->
+        <div class="table-card">
+            <div class="table-header">⚙️ system_config - Configuración del Sistema</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Almacena configuraciones globales sin necesidad de reiniciar el servidor.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">config_key</div>
+                    <span class="field-type">VARCHAR(100)</span>
+                    <span class="field-constraint">UNIQUE</span>
+                    <div class="field-description">
+                        Clave de configuración. Ejemplos:<br>
+                        • "email_daily_limit": Límite global de envíos<br>
+                        • "default_sender_email": Email por defecto<br>
+                        • "tracking_pixel_domain": Dominio para tracking<br>
+                        • "webhook_secret": Secret para validar webhooks
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">config_value</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Valor de la configuración.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">config_type</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">Tipo de dato para validación: string, number, boolean, json.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">💡 Ventaja:</div>
+                    Permite cambiar configuraciones sin tocar código ni reiniciar. Ideal para ajustar límites o activar/desactivar features.
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTOMATION_LOGS -->
+        <div class="table-card">
+            <div class="table-header">📝 automation_logs - Logs de Automatización</div>
+            <div class="table-body">
+                <p style="margin-bottom: 20px;"><strong>Propósito:</strong> Registra ejecuciones de jobs automáticos para monitoreo y debugging.</p>
+                
+                <div class="field-group">
+                    <div class="field-name">job_name</div>
+                    <span class="field-type">VARCHAR(255)</span>
+                    <div class="field-description">Nombre del job ejecutado: "scheduled_campaign_sender", "stats_updater", etc.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">job_type</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">
+                        Categoría del job:<br>
+                        • <strong>scheduled_send:</strong> Envío programado<br>
+                        • <strong>cleanup:</strong> Limpieza de datos antiguos<br>
+                        • <strong>stats_update:</strong> Actualización de estadísticas<br>
+                        • <strong>webhook_processing:</strong> Procesamiento de webhooks
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">status</div>
+                    <span class="field-type">ENUM</span>
+                    <div class="field-description">started, completed, failed. Permite monitorear salud del sistema.</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">details</div>
+                    <span class="field-type">JSON</span>
+                    <div class="field-description">Detalles de ejecución: {"emails_sent": 1500, "duration_ms": 45000, "queue_size": 200}</div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-name">error_message</div>
+                    <span class="field-type">TEXT</span>
+                    <div class="field-description">Stack trace completo si el job falló. Crítico para debugging.</div>
+                </div>
+
+                <div class="index-info">
+                    <div class="index-title">🔍 Monitoreo:</div>
+                    Esta tabla permite crear alertas si un job falla repetidamente o tarda demasiado.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Consideraciones Finales -->
+    <div class="section">
+        <h2 class="section-title">Consideraciones de Diseño</h2>
+        
+        <div class="section-subtitle">🎯 Escalabilidad</div>
+        <ul style="margin-left: 25px; line-height: 2;">
+            <li><strong>Índices estratégicos:</strong> Todos los campos usados en búsquedas frecuentes tienen índices</li>
+            <li><strong>Particionado futuro:</strong> Las tablas grandes (email_sends, email_events) pueden particionarse por fecha</li>
+            <li><strong>Campos JSON:</strong> Permiten extensibilidad sin modificar esquema</li>
+            <li><strong>Soft deletes:</strong> Campos 'active' en lugar de borrado físico</li>
+        </ul>
+
+        <div class="section-subtitle">🔒 Seguridad</div>
+        <ul style="margin-left: 25px; line-height: 2;">
+            <li><strong>Passwords hasheados:</strong> Nunca se almacenan contraseñas en texto plano</li>
+            <li><strong>Encriptación de credenciales:</strong> La tabla credentials debe usar encriptación AES</li>
+            <li><strong>Tracking IDs únicos:</strong> UUIDs imposibles de predecir</li>
+            <li><strong>Rate limiting:</strong> Campos daily_limit previenen abuso</li>
+        </ul>
+
+        <div class="section-subtitle">📊 Performance</div>
+        <ul style="margin-left: 25px; line-height: 2;">
+            <li><strong>Índices compuestos:</strong> Para consultas complejas (campaign_id + status)</li>
+            <li><strong>Desnormalización controlada:</strong> Campo total_recipients en campaigns evita COUNT pesado</li>
+            <li><strong>Timestamps automáticos:</strong> created_at/updated_at gestionados por MySQL</li>
+            <li><strong>Foreign Keys:</strong> Garantizan integridad referencial</li>
+            <li><strong>Índice en message_id:</strong> Crítico para correlación rápida con webhooks de Brevo</li>
+        </ul>
+
+        <div class="section-subtitle">📧 Integración con Brevo</div>
+        <ul style="margin-left: 25px; line-height: 2;">
+            <li><strong>Sin duplicación de eventos:</strong> Brevo almacena aperturas/clics, nosotros solo sincronizamos estados</li>
+            <li><strong>Webhooks en tiempo real:</strong> Actualización instantánea de estados vía webhooks</li>
+            <li><strong>API para reportes:</strong> Consultas bajo demanda a Brevo para estadísticas detalladas</li>
+            <li><strong>message_id como clave:</strong> Correlación 1:1 entre registros locales y eventos Brevo</li>
+            <li><strong>Escalabilidad delegada:</strong> Brevo maneja millones de eventos sin impacto en nuestra BD</li>
+        </ul>
+
+        <div class="section-subtitle">🔄 Mantenimiento</div>
+        <ul style="margin-left: 25px; line-height: 2;">
+            <li><strong>Archivado automático:</strong> Mover emails antiguos (>1 año) a tabla _archive</li>
+            <li><strong>Rotación de logs:</strong> Limpiar automation_logs periódicamente</li>
+            <li><strong>Backups incrementales:</strong> Respaldo regular de campaigns y email_sends</li>
+            <li><strong>Sincronización periódica:</strong> Job que verifica consistencia con Brevo (opcional)</li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 30px; text-align: center; border-radius: 12px; margin-top: 40px;">
+        <h3 style="margin-bottom: 10px;">🎯 Base de Datos Lista para Producción</h3>
+        <p>Esta estructura soporta desde campañas pequeñas hasta millones de envíos con tracking completo</p>
+        <p style="margin-top: 20px; opacity: 0.9; font-size: 0.9rem;">
+            Documentación generada para el Sistema de Automatización de Envío de Credenciales - 2026
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>
