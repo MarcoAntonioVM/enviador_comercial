@@ -78,6 +78,64 @@ class SenderController {
       next(error);
     }
   }
+
+  // ============================================
+  // OPERACIONES MASIVAS (BULK)
+  // ============================================
+
+  /**
+   * Crear múltiples senders
+   * POST /api/v1/senders/bulk
+   */
+  async bulkCreateSenders(req, res, next) {
+    try {
+      const { senders } = req.body;
+
+      const result = await senderService.bulkCreateSenders(senders);
+      
+      const statusCode = result.summary.failed === 0 ? 201 : 207; // 207 = Multi-
+      
+      if(statusCode === 201 || statusCode === 207){
+        console.log('aqui va a entrar a registrar y activar senders en brevo');
+      }
+      
+      successResponse(res, result, 'Remitentes creados correctamente', statusCode);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Actualizar múltiples senders
+   * PUT /api/v1/senders/bulk
+   */
+  async bulkUpdateSenders(req, res, next) {
+    try {
+      const { senders } = req.body;
+      const result = await senderService.bulkUpdateSenders(senders);
+      
+      const statusCode = result.summary.failed === 0 ? 200 : 207; // 207 = Multi-Status
+      successResponse(res, result, 'senders update completed', statusCode);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Eliminar múltiples senders
+   * DELETE /api/v1/senders/bulk
+   */
+  async bulkDeleteSenders(req, res, next) {
+    try {
+      const { ids } = req.body;
+      const result = await senderService.bulkDeleteSenders(ids);
+      
+      const statusCode = result.summary.failed === 0 ? 200 : 207; // 207 = Multi-Status
+      successResponse(res, result, 'senders delete completed', statusCode);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new SenderController();
