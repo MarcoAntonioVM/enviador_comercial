@@ -6,11 +6,12 @@ const { isCommercialOrAdmin, isAdmin } = require('../middlewares/roles.middlewar
 
 router.use(authenticate);
 
+// Rutas específicas primero (antes que /:id para evitar que "bulk-import" se interprete como id)
 router.get('/', isCommercialOrAdmin, sectorController.getAllSectors);
-router.get('/:id', isCommercialOrAdmin, sectorController.getSectorById);
 router.get('/:id/stats', isCommercialOrAdmin, sectorController.getSectorStats);
-router.post('/', isAdmin, sectorController.createSector);
+router.get('/:id', isCommercialOrAdmin, sectorController.getSectorById);
 router.post('/bulk-import', isAdmin, sectorController.bulkImport);
+router.post('/', isAdmin, sectorController.createSector);
 router.put('/:id', isAdmin, sectorController.updateSector);
 router.delete('/:id', isAdmin, sectorController.deleteSector);
 
