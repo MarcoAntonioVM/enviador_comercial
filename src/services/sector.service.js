@@ -1,4 +1,4 @@
-const { Sector, Prospect } = require('../models');
+const { Sector, Prospect, sequelize } = require('../models');
 const { AppError } = require('../utils/errors');
 const { Op } = require('sequelize');
 
@@ -34,10 +34,13 @@ class SectorService {
 
     for (const sectorData of sectors) {
       try {
-        const existing = await Sector.findOne({ 
-          where: { 
-            name: { [Op.iLike]: sectorData.name } 
-          } 
+        // Comparación case-insensitive compatible con MySQL (Op.iLike es solo PostgreSQL)
+        const existing = await Sector.findOne({
+          where: sequelize.where(
+            sequelize.fn('LOWER', sequelize.col('name')),
+            Op.eq,
+            (sectorData.name || '').toLowerCase()
+          )
         });
         
         if (existing) {
