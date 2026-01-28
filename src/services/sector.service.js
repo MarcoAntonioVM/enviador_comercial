@@ -1,5 +1,6 @@
 const { Sector, Prospect } = require('../models');
 const { AppError } = require('../utils/errors');
+const { Op } = require('sequelize');
 
 class SectorService {
   async getAllSectors(activeOnly = false) {
@@ -26,6 +27,35 @@ class SectorService {
   async createSector(data) {
     const sector = await Sector.create(data);
     return sector;
+  }
+
+  async bulkImport(sectors) {
+    const results = { created: 0, updated: 0, errors: [] };
+
+    for (const sectorData of sectors) {
+      try {
+        const existing = await Sector.findOne({ 
+          where: { 
+            name: { [Op.iLike]: sectorData.name } 
+          } 
+        });
+        
+        if (existing) {
+          await existing.update(sectorData);
+          results.updated++;
+        } else {
+          await Sector.create(sectorData);
+          results.created++;
+        }
+      } catch (error) {
+        results.errors.push({ 
+          name: sectorData.name || 'Unknown', 
+          error: error.message 
+        });
+      }
+    }
+
+    return results;
   }
 
   async updateSector(id, data) {

@@ -10,6 +10,7 @@ router.get('/', isCommercialOrAdmin, sectorController.getAllSectors);
 router.get('/:id', isCommercialOrAdmin, sectorController.getSectorById);
 router.get('/:id/stats', isCommercialOrAdmin, sectorController.getSectorStats);
 router.post('/', isAdmin, sectorController.createSector);
+router.post('/bulk-import', isAdmin, sectorController.bulkImport);
 router.put('/:id', isAdmin, sectorController.updateSector);
 router.delete('/:id', isAdmin, sectorController.deleteSector);
 

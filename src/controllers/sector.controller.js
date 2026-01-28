@@ -31,6 +31,16 @@ class SectorController {
     }
   }
 
+  async bulkImport(req, res, next) {
+    try {
+      const { sectors } = req.body;
+      const result = await sectorService.bulkImport(sectors);
+      successResponse(res, result, 'Bulk import completed');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateSector(req, res, next) {
     try {
       const { id } = req.params;
