@@ -7,6 +7,18 @@ const Prospect = sequelize.define('Prospect', {
     primaryKey: true,
     autoIncrement: true
   },
+  company: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  sector_name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,
@@ -14,51 +26,18 @@ const Prospect = sequelize.define('Prospect', {
       isEmail: true
     }
   },
-  name: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  company: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  sector_id: {
+  created_by: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'sectors',
+      model: 'users',
       key: 'id'
     }
   },
-  phone: {
-    type: DataTypes.STRING(50),
-    allowNull: true
-  },
-  status: {
-    type: DataTypes.ENUM('active', 'inactive', 'bounced', 'spam_reported', 'unsubscribed'),
+  active: {
+    type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: 'active'
-  },
-  consent_status: {
-    type: DataTypes.ENUM('unknown', 'granted', 'revoked'),
-    allowNull: false,
-    defaultValue: 'unknown'
-  },
-  consented_at: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  unsubscribed_at: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  deleted_at: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  metadata: {
-    type: DataTypes.JSON,
-    allowNull: true
+    defaultValue: true
   },
   created_at: {
     type: DataTypes.DATE,
@@ -75,11 +54,9 @@ const Prospect = sequelize.define('Prospect', {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
-  paranoid: false,
   indexes: [
-    { unique: true, fields: ['email'] },
-    { fields: ['status', 'sector_id'] },
-    { fields: ['consent_status', 'deleted_at'] }
+    { unique: true, name: 'unique_prospect_email', fields: ['email'] },
+    { fields: ['active'] }
   ]
 });
 

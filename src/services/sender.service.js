@@ -2,16 +2,22 @@ const { Sender } = require('../models');
 const { AppError } = require('../utils/errors');
 
 class SenderService {
+
+  // =========================
+  // CRUD BÁSICO
+  // =========================
+
   async getAllSenders() {
-    const senders = await Sender.findAll({
+    return await Sender.findAll({
+      where: { active: true },
       order: [['created_at', 'DESC']]
     });
-
-    return senders;
   }
 
   async getSenderById(id) {
-    const sender = await Sender.findByPk(id);
+    const sender = await Sender.findOne({
+      where: { id, active: true }
+    });
 
     if (!sender) {
       throw new AppError('Sender not found', 404);
@@ -20,29 +26,30 @@ class SenderService {
     return sender;
   }
 
-  async createSender(data) {
+  async createSender(data, createdBy = null) {
     const { email } = data;
 
-    // Validación adicional
     if (!email) {
       throw new AppError('Email is required', 400);
     }
 
     const existing = await Sender.findOne({ where: { email } });
-    if (existing) {
+    if (existing && existing.active) {
       throw new AppError('Sender with this email already exists', 409);
     }
 
-    const sender = await Sender.create(data);
-    return sender;
+    return await Sender.create({ ...data, created_by: createdBy });
   }
 
   async updateSender(id, data) {
     const sender = await this.getSenderById(id);
 
     if (data.email && data.email !== sender.email) {
-      const existing = await Sender.findOne({ where: { email: data.email } });
-      if (existing && existing.id !== id) {
+      const existing = await Sender.findOne({
+        where: { email: data.email }
+      });
+
+      if (existing && existing.id !== id && existing.active) {
         throw new AppError('Email already in use', 409);
       }
     }
@@ -53,73 +60,60 @@ class SenderService {
 
   async deleteSender(id) {
     const sender = await this.getSenderById(id);
+    await sender.update({ active: false });
+    return {
+      message: 'Sender deleted successfully'
+    };
+  }
 
-    // Check if sender is used in campaigns
-    const { Campaign } = require('../models');
-    const campaignCount = await Campaign.count({ where: { sender_id: id } });
-    
-    if (campaignCount > 0) {
-      throw new AppError('Cannot delete sender that is used in campaigns', 400);
+  async reactivateSender(id) {
+    const sender = await Sender.findByPk(id);
+
+    if (!sender) {
+      throw new AppError('Sender not found', 404);
     }
 
-    await sender.destroy();
-    return { message: 'Sender deleted successfully' };
+    if (sender.active) {
+      throw new AppError('Sender is already active', 400);
+    }
+
+    await sender.update({ active: true });
+    return { message: 'Sender reactivated successfully' };
   }
 
   async getDefaultSender() {
-    const sender = await Sender.findOne({ where: { is_default: true } });
-
-    if (!sender) {
-      throw new AppError('No default sender found', 404);
-    }
-
+    const sender = await Sender.findOne({
+      where: { active: true },
+      order: [['id', 'ASC']]
+    });
     return sender;
   }
 
   async setDefaultSender(id) {
-    const sender = await this.getSenderById(id);
-
-    // Remove default from all others
-    await Sender.update({ is_default: false }, { where: {} });
-
-    // Set this one as default
-    await sender.update({ is_default: true });
-
-    return sender;
+    return await this.getSenderById(id);
   }
 
+  // =========================
+  // LÍMITE DIARIO (TEMPORAL)
+  // =========================
+
   async checkDailyLimit(senderId) {
-    const { EmailSend } = require('../models');
     const sender = await this.getSenderById(senderId);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const sentToday = await EmailSend.count({
-      where: {
-        sender_id: senderId,
-        sent_at: { [require('sequelize').Op.gte]: today }
-      }
-    });
-
+    // No existe aún tabla de envíos
     return {
       daily_limit: sender.daily_limit,
-      sent_today: sentToday,
-      remaining: sender.daily_limit - sentToday,
-      can_send: sentToday < sender.daily_limit
+      sent_today: 0,
+      remaining: sender.daily_limit,
+      can_send: true
     };
   }
 
-  // ============================================
-  // OPERACIONES MASIVAS (BULK)
-  // ============================================
+  // =========================
+  // OPERACIONES MASIVAS
+  // =========================
 
-  /**
-   * Crear múltiples senders a la vez
-   * @param {Array} sendersData - Array de objetos con datos de senders
-   * @returns {Object} Resultado con senders creados y errores
-   */
-  async bulkCreateSenders(sendersData) {
+  async bulkCreateSenders(sendersData, createdBy = null) {
     const results = {
       created: [],
       errors: [],
@@ -132,12 +126,13 @@ class SenderService {
 
     for (let i = 0; i < sendersData.length; i++) {
       const senderData = sendersData[i];
-      
+
       try {
-        // Validar que el email no exista
-        const existing = await Sender.findOne({ where: { email: senderData.email } });
-        
-        if (existing) {
+        const existing = await Sender.findOne({
+          where: { email: senderData.email }
+        });
+
+        if (existing && existing.active) {
           results.errors.push({
             index: i,
             email: senderData.email,
@@ -147,8 +142,7 @@ class SenderService {
           continue;
         }
 
-        // Crear el sender
-        const sender = await Sender.create(senderData);
+        const sender = await Sender.create({ ...senderData, created_by: createdBy });
         results.created.push(sender);
         results.summary.successful++;
 
@@ -165,11 +159,6 @@ class SenderService {
     return results;
   }
 
-  /**
-   * Actualizar múltiples senders a la vez
-   * @param {Array} updates - Array de objetos con {id, data}
-   * @returns {Object} Resultado con senders actualizados y errores
-   */
   async bulkUpdateSenders(updates) {
     const results = {
       updated: [],
@@ -183,28 +172,32 @@ class SenderService {
 
     for (let i = 0; i < updates.length; i++) {
       const { id, ...data } = updates[i];
-      
+
       try {
-        // Buscar el sender
-        const sender = await Sender.findByPk(id);
-        
+        const sender = await Sender.findOne({
+          where: { id, active: true }
+        });
+
         if (!sender) {
           results.errors.push({
             index: i,
-            id: id,
+            id,
             error: 'Sender not found'
           });
           results.summary.failed++;
           continue;
         }
 
-        // Validar email si se está actualizando
         if (data.email && data.email !== sender.email) {
-          const existing = await Sender.findOne({ where: { email: data.email } });
-          if (existing && existing.id !== id) {
+
+          const existing = await Sender.findOne({
+            where: { email: data.email }
+          });
+
+          if (existing && existing.id !== id && existing.active) {
             results.errors.push({
               index: i,
-              id: id,
+              id,
               error: 'Email already in use'
             });
             results.summary.failed++;
@@ -212,7 +205,6 @@ class SenderService {
           }
         }
 
-        // Actualizar el sender
         await sender.update(data);
         results.updated.push(sender);
         results.summary.successful++;
@@ -220,7 +212,7 @@ class SenderService {
       } catch (error) {
         results.errors.push({
           index: i,
-          id: id,
+          id,
           error: error.message
         });
         results.summary.failed++;
@@ -230,13 +222,8 @@ class SenderService {
     return results;
   }
 
-  /**
-   * Eliminar múltiples senders a la vez
-   * @param {Array} ids - Array de IDs a eliminar
-   * @returns {Object} Resultado con senders eliminados y errores
-   */
   async bulkDeleteSenders(ids) {
-    const { Campaign } = require('../models');
+
     const results = {
       deleted: [],
       errors: [],
@@ -249,43 +236,37 @@ class SenderService {
 
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
-      
+
       try {
-        // Buscar el sender
-        const sender = await Sender.findByPk(id);
-        
+
+        const sender = await Sender.findOne({
+          where: { id, active: true }
+        });
+
         if (!sender) {
           results.errors.push({
             index: i,
-            id: id,
+            id,
             error: 'Sender not found'
           });
           results.summary.failed++;
           continue;
         }
 
-        // Verificar que no esté usado en campañas
-        const campaignCount = await Campaign.count({ where: { sender_id: id } });
-        
-        if (campaignCount > 0) {
-          results.errors.push({
-            index: i,
-            id: id,
-            error: `Cannot delete sender used in ${campaignCount} campaign(s)`
-          });
-          results.summary.failed++;
-          continue;
-        }
+        await sender.update({ active: false });
 
-        // Eliminar el sender
-        await sender.destroy();
-        results.deleted.push({ id, email: sender.email, name: sender.name });
+        results.deleted.push({
+          id,
+          email: sender.email,
+          name: sender.name
+        });
+
         results.summary.successful++;
 
       } catch (error) {
         results.errors.push({
           index: i,
-          id: id,
+          id,
           error: error.message
         });
         results.summary.failed++;

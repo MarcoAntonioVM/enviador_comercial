@@ -1,6 +1,12 @@
 const Joi = require('joi');
 
 const userValidators = {
+  idParam: Joi.object({
+    id: Joi.string().pattern(/^\d+$/).required().messages({
+      'string.pattern.base': 'ID must be a valid number'
+    })
+  }),
+
   createUser: Joi.object({
     email: Joi.string().email().max(255).required().messages({
       'string.email': 'Please provide a valid email',

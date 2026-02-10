@@ -1,12 +1,12 @@
-const { EmailTemplate, Sector, User } = require('../models');
+const { EmailTemplate, User } = require('../models');
 const { AppError } = require('../utils/errors');
 
 class TemplateService {
+
   async getAllTemplates(filters = {}) {
-    const { sector_id, active, created_by } = filters;
+    const { active, created_by } = filters;
     const where = {};
 
-    if (sector_id) where.sector_id = sector_id;
     if (active !== undefined) where.active = active;
     if (created_by) where.created_by = created_by;
 
@@ -14,8 +14,11 @@ class TemplateService {
       where,
       order: [['created_at', 'DESC']],
       include: [
-        { model: Sector, as: 'sector', attributes: ['id', 'name'] },
-        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] }
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email']
+        }
       ]
     });
 
@@ -25,8 +28,11 @@ class TemplateService {
   async getTemplateById(id) {
     const template = await EmailTemplate.findByPk(id, {
       include: [
-        { model: Sector, as: 'sector' },
-        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] }
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email']
+        }
       ]
     });
 
@@ -38,8 +44,14 @@ class TemplateService {
   }
 
   async createTemplate(data, userId) {
+    if (!data.name || !data.subject) {
+      throw new AppError('Name and subject are required', 400);
+    }
     const template = await EmailTemplate.create({
-      ...data,
+      name: data.name,
+      subject: data.subject,
+      html_content: data.html_content,
+      active: data.active ?? true,
       created_by: userId
     });
 
@@ -48,55 +60,51 @@ class TemplateService {
 
   async updateTemplate(id, data) {
     const template = await this.getTemplateById(id);
-    await template.update(data);
+
+    await template.update({
+      name: data.name ?? template.name,
+      subject: data.subject ?? template.subject,
+      html_content: data.html_content ?? template.html_content,
+      active: data.active ?? template.active
+    });
+
     return template;
   }
 
   async deleteTemplate(id) {
     const template = await this.getTemplateById(id);
 
-    // Check if template is used in campaigns
-    const { Campaign } = require('../models');
-    const campaignCount = await Campaign.count({ where: { template_id: id } });
-    
-    if (campaignCount > 0) {
-      throw new AppError('Cannot delete template that is used in campaigns', 400);
+    // Soft delete
+    await template.update({ active: false });
+
+    return {
+      message: 'Template deactivated successfully'
+    };
+  }
+
+  async reactivateTemplate(id) {
+    const template = await this.getTemplateById(id);
+
+    if (template.active) {
+      throw new AppError('Template is already active', 400);
     }
 
-    await template.destroy();
-    return { message: 'Template deleted successfully' };
+    await template.update({ active: true });
+    return { message: 'Template reactivated successfully' };
   }
 
   async duplicateTemplate(id, userId) {
-    const originalTemplate = await this.getTemplateById(id);
+    const original = await this.getTemplateById(id);
 
-    const duplicateData = {
-      name: `${originalTemplate.name} (Copy)`,
-      sector_id: originalTemplate.sector_id,
-      subject: originalTemplate.subject,
-      html_content: originalTemplate.html_content,
-      text_content: originalTemplate.text_content,
-      variables: originalTemplate.variables,
-      is_default: false,
-      active: originalTemplate.active,
+    const duplicate = await EmailTemplate.create({
+      name: `${original.name} (Copy)`,
+      subject: original.subject,
+      html_content: original.html_content,
+      active: original.active,
       created_by: userId
-    };
+    });
 
-    const duplicate = await EmailTemplate.create(duplicateData);
     return duplicate;
-  }
-
-  async getDefaultTemplate(sectorId = null) {
-    const where = { is_default: true, active: true };
-    if (sectorId) where.sector_id = sectorId;
-
-    const template = await EmailTemplate.findOne({ where });
-
-    if (!template) {
-      throw new AppError('No default template found', 404);
-    }
-
-    return template;
   }
 }
 

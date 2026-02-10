@@ -1,4 +1,4 @@
-const { Prospect, Sector } = require('../models');
+const { Prospect } = require('../models');
 const { AppError } = require('../utils/errors');
 const { Op } = require('sequelize');
 
@@ -7,20 +7,16 @@ class ProspectService {
     const {
       page = 1,
       limit = 10,
-      status,
-      sector_id,
-      consent_status,
+      sector_name,
       search,
       sortBy = 'created_at',
       sortOrder = 'DESC'
     } = filters;
 
     const offset = (page - 1) * limit;
-    const where = { deleted_at: null };
+    const where = { active: true };
 
-    if (status) where.status = status;
-    if (sector_id) where.sector_id = sector_id;
-    if (consent_status) where.consent_status = consent_status;
+    if (sector_name) where.sector_name = sector_name;
 
     if (search) {
       where[Op.or] = [
@@ -34,8 +30,7 @@ class ProspectService {
       where,
       limit: parseInt(limit),
       offset,
-      order: [[sortBy, sortOrder]],
-      include: [{ model: Sector, as: 'sector', attributes: ['id', 'name'] }]
+      order: [[sortBy, sortOrder]]
     });
 
     return {
@@ -46,8 +41,7 @@ class ProspectService {
 
   async getProspectById(id) {
     const prospect = await Prospect.findOne({
-      where: { id, deleted_at: null },
-      include: [{ model: Sector, as: 'sector' }]
+      where: { id, active: true }
     });
 
     if (!prospect) {
@@ -57,16 +51,15 @@ class ProspectService {
     return prospect;
   }
 
-  async createProspect(data) {
+  async createProspect(data, createdBy = null) {
     const { email } = data;
 
     const existing = await Prospect.findOne({ where: { email } });
-    if (existing && !existing.deleted_at) {
+    if (existing && existing.active) {
       throw new AppError('Prospect with this email already exists', 409);
     }
 
-    const prospect = await Prospect.create(data);
-    return prospect;
+    return await Prospect.create({ ...data, created_by: createdBy });
   }
 
   async updateProspect(id, data) {
@@ -74,7 +67,7 @@ class ProspectService {
 
     if (data.email && data.email !== prospect.email) {
       const existing = await Prospect.findOne({ where: { email: data.email } });
-      if (existing && existing.id !== id) {
+      if (existing && existing.id !== id && existing.active) {
         throw new AppError('Email already in use', 409);
       }
     }
@@ -85,22 +78,37 @@ class ProspectService {
 
   async deleteProspect(id) {
     const prospect = await this.getProspectById(id);
-    await prospect.update({ deleted_at: new Date() });
+    await prospect.update({ active: false });
     return { message: 'Prospect deleted successfully' };
   }
 
-  async bulkImport(prospects) {
+  async reactivateProspect(id) {
+    const prospect = await Prospect.findOne({ where: { id } });
+
+    if (!prospect) {
+      throw new AppError('Prospect not found', 404);
+    }
+
+    if (prospect.active) {
+      throw new AppError('Prospect is already active', 400);
+    }
+
+    await prospect.update({ active: true });
+    return { message: 'Prospect reactivated successfully' };
+  }
+
+  async bulkImport(prospects, createdBy = null) {
     const results = { created: 0, updated: 0, errors: [] };
 
     for (const prospectData of prospects) {
       try {
         const existing = await Prospect.findOne({ where: { email: prospectData.email } });
-        
+
         if (existing) {
           await existing.update(prospectData);
           results.updated++;
         } else {
-          await Prospect.create(prospectData);
+          await Prospect.create({ ...prospectData, created_by: createdBy });
           results.created++;
         }
       } catch (error) {
@@ -112,17 +120,12 @@ class ProspectService {
   }
 
   async unsubscribe(email) {
-    const prospect = await Prospect.findOne({ where: { email } });
+    const prospect = await Prospect.findOne({ where: { email, active: true } });
     if (!prospect) {
       throw new AppError('Prospect not found', 404);
     }
 
-    await prospect.update({
-      status: 'unsubscribed',
-      consent_status: 'revoked',
-      unsubscribed_at: new Date()
-    });
-
+    await prospect.update({ active: false });
     return { message: 'Unsubscribed successfully' };
   }
 }

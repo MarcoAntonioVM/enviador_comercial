@@ -67,28 +67,6 @@ router.get('/', isAdmin, validate(userValidators.queryUsers, 'query'), userContr
 
 /**
  * @swagger
- * /api/v1/users/{id}:
- *   get:
- *     summary: Get user by ID
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: User retrieved successfully
- *       404:
- *         description: User not found
- */
-router.get('/:id', isAdmin, userController.getUserById);
-
-/**
- * @swagger
  * /api/v1/users:
  *   post:
  *     summary: Create new user
@@ -120,6 +98,81 @@ router.get('/:id', isAdmin, userController.getUserById);
  *         description: User created successfully
  */
 router.post('/', isAdmin, validate(userValidators.createUser), userController.createUser);
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/reset-password:
+ *   post:
+ *     summary: Reset user password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ */
+router.post('/:id/reset-password', isAdmin, validate(userValidators.idParam, 'params'), validate(userValidators.resetPassword), userController.resetPassword);
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/reactivate:
+ *   post:
+ *     summary: Reactivate user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User reactivated successfully
+ *       404:
+ *         description: User not found
+ */
+router.post('/:id/reactivate', isAdmin, validate(userValidators.idParam, 'params'), userController.reactivateUser);
+
+/**
+ * @swagger
+ * /api/v1/users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *       404:
+ *         description: User not found
+ */
+router.get('/:id', isAdmin, validate(userValidators.idParam, 'params'), userController.getUserById);
 
 /**
  * @swagger
@@ -156,7 +209,7 @@ router.post('/', isAdmin, validate(userValidators.createUser), userController.cr
  *       200:
  *         description: User updated successfully
  */
-router.put('/:id', isAdmin, validate(userValidators.updateUser), userController.updateUser);
+router.put('/:id', isAdmin, validate(userValidators.idParam, 'params'), validate(userValidators.updateUser), userController.updateUser);
 
 /**
  * @swagger
@@ -176,37 +229,6 @@ router.put('/:id', isAdmin, validate(userValidators.updateUser), userController.
  *       200:
  *         description: User deleted successfully
  */
-router.delete('/:id', isAdmin, userController.deleteUser);
-
-/**
- * @swagger
- * /api/v1/users/{id}/reset-password:
- *   post:
- *     summary: Reset user password
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - newPassword
- *             properties:
- *               newPassword:
- *                 type: string
- *     responses:
- *       200:
- *         description: Password reset successfully
- */
-router.post('/:id/reset-password', isAdmin, validate(userValidators.resetPassword), userController.resetPassword);
+router.delete('/:id', isAdmin, validate(userValidators.idParam, 'params'), userController.deleteUser);
 
 module.exports = router;

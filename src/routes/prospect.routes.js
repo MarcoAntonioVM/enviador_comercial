@@ -12,6 +12,7 @@ router.get('/:id', prospectController.getProspectById);
 router.post('/', prospectController.createProspect);
 router.put('/:id', prospectController.updateProspect);
 router.delete('/:id', prospectController.deleteProspect);
+router.post('/:id/reactivate', prospectController.reactivateProspect);
 router.post('/bulk-import', prospectController.bulkImport);
 router.post('/unsubscribe', prospectController.unsubscribe);
 

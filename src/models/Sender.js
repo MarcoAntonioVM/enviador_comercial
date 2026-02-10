@@ -33,10 +33,13 @@ const Sender = sequelize.define('Sender', {
     type: DataTypes.JSON,
     allowNull: true
   },
-  is_default: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
+  created_by: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   daily_limit: {
     type: DataTypes.INTEGER,
@@ -45,6 +48,11 @@ const Sender = sequelize.define('Sender', {
     validate: {
       min: 1
     }
+  },
+  active: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   },
   created_at: {
     type: DataTypes.DATE,
@@ -63,7 +71,8 @@ const Sender = sequelize.define('Sender', {
   updatedAt: 'updated_at',
   indexes: [
     { fields: ['email'] },
-    { fields: ['is_default'] }
+    { fields: ['created_by'] },
+    { fields: ['active'] }
   ]
 });
 

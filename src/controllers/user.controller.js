@@ -1,5 +1,6 @@
 const userService = require('../services/user.service');
 const { successResponse, paginatedResponse } = require('../utils/response');
+const { AppError } = require('../utils/errors');
 
 class UserController {
   /**
@@ -12,7 +13,7 @@ class UserController {
         page: req.query.page,
         limit: req.query.limit,
         role: req.query.role,
-        active: req.query.active,
+        active: req.query.active !== undefined ? req.query.active === 'true' : undefined,
         search: req.query.search,
         sortBy: req.query.sortBy,
         sortOrder: req.query.sortOrder
@@ -53,6 +54,14 @@ class UserController {
   async createUser(req, res, next) {
     try {
       const userData = req.body;
+
+      if (!userData.email || !userData.password || !userData.name) {
+        throw new AppError('Email, password and name are required', 400);
+      }
+      if (userData.password.length < 6) {
+        throw new AppError('Password must be at least 6 characters', 400);
+      }
+
       const user = await userService.createUser(userData);
 
       successResponse(res, { user }, 'User created successfully', 201);
@@ -79,7 +88,7 @@ class UserController {
   }
 
   /**
-   * Delete user
+   * Delete user (soft delete)
    * DELETE /api/v1/users/:id
    */
   async deleteUser(req, res, next) {
@@ -87,7 +96,22 @@ class UserController {
       const { id } = req.params;
       const result = await userService.deleteUser(id);
 
-      successResponse(res, result, 'User deleted successfully', 200);
+      successResponse(res, result, 'User deactivated successfully', 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Reactivate user (after soft delete)
+   * POST /api/v1/users/:id/reactivate
+   */
+  async reactivateUser(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await userService.reactivateUser(id);
+
+      successResponse(res, result, 'User reactivated successfully', 200);
     } catch (error) {
       next(error);
     }
@@ -101,6 +125,13 @@ class UserController {
     try {
       const { id } = req.params;
       const { newPassword } = req.body;
+
+      if (!newPassword) {
+        throw new AppError('New password is required', 400);
+      }
+      if (newPassword.length < 6) {
+        throw new AppError('Password must be at least 6 characters', 400);
+      }
 
       const result = await userService.resetPassword(id, newPassword);
 

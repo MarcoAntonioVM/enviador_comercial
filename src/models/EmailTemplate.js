@@ -11,14 +11,6 @@ const EmailTemplate = sequelize.define('EmailTemplate', {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  sector_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'sectors',
-      key: 'id'
-    }
-  },
   subject: {
     type: DataTypes.STRING(500),
     allowNull: false
@@ -26,19 +18,6 @@ const EmailTemplate = sequelize.define('EmailTemplate', {
   html_content: {
     type: DataTypes.TEXT,
     allowNull: true
-  },
-  text_content: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  variables: {
-    type: DataTypes.JSON,
-    allowNull: true
-  },
-  is_default: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
   },
   active: {
     type: DataTypes.BOOLEAN,
@@ -69,8 +48,8 @@ const EmailTemplate = sequelize.define('EmailTemplate', {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   indexes: [
-    { fields: ['sector_id'] },
-    { fields: ['active'] }
+    { fields: ['active'] },
+    { fields: ['created_by'] }
   ]
 });
 

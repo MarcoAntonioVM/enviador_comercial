@@ -53,38 +53,14 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1 },
-            email: { type: 'string', format: 'email' },
-            name: { type: 'string' },
             company: { type: 'string' },
-            sector_id: { type: 'integer' },
-            phone: { type: 'string' },
-            status: { type: 'string', enum: ['active', 'inactive', 'bounced', 'spam_reported', 'unsubscribed'] },
-            consent_status: { type: 'string', enum: ['unknown', 'granted', 'revoked'] }
-          }
-        },
-        Campaign: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer', example: 1 },
+            sector_name: { type: 'string' },
             name: { type: 'string' },
-            description: { type: 'string' },
-            template_id: { type: 'integer' },
-            sender_id: { type: 'integer' },
-            sector_id: { type: 'integer' },
-            type: { type: 'string', enum: ['individual', 'massive', 'scheduled'] },
-            total_recipients: { type: 'integer' },
-            scheduled_at: { type: 'string', format: 'date-time' },
-            started_at: { type: 'string', format: 'date-time' },
-            completed_at: { type: 'string', format: 'date-time' }
-          }
-        },
-        Sector: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer', example: 1 },
-            name: { type: 'string', example: 'Technology' },
-            description: { type: 'string' },
-            active: { type: 'boolean', example: true }
+            email: { type: 'string', format: 'email' },
+            created_by: { type: 'integer', nullable: true },
+            deleted_at: { type: 'string', format: 'date-time', nullable: true },
+            created_at: { type: 'string', format: 'date-time' },
+            updated_at: { type: 'string', format: 'date-time' }
           }
         },
         Error: {
@@ -155,8 +131,6 @@ const options = {
       { name: 'Authentication', description: 'Authentication endpoints' },
       { name: 'Users', description: 'User management' },
       { name: 'Prospects', description: 'Prospect management' },
-      { name: 'Campaigns', description: 'Campaign management' },
-      { name: 'Sectors', description: 'Sector management' },
       { name: 'Templates', description: 'Email template management' },
       { name: 'Senders', description: 'Sender configuration' }
     ]

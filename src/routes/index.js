@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-// Import route modules
+// Import route modules (sectors y campaigns no existen en envios_estandar)
 const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const prospectRoutes = require('./prospect.routes');
-const campaignRoutes = require('./campaign.routes');
-const sectorRoutes = require('./sector.routes');
 const templateRoutes = require('./template.routes');
 const senderRoutes = require('./sender.routes');
 
@@ -31,8 +29,6 @@ router.get('/health', (req, res) => {
 router.use(`/api/${API_VERSION}/auth`, authRoutes);
 router.use(`/api/${API_VERSION}/users`, userRoutes);
 router.use(`/api/${API_VERSION}/prospects`, prospectRoutes);
-router.use(`/api/${API_VERSION}/campaigns`, campaignRoutes);
-router.use(`/api/${API_VERSION}/sectors`, sectorRoutes);
 router.use(`/api/${API_VERSION}/templates`, templateRoutes);
 router.use(`/api/${API_VERSION}/senders`, senderRoutes);
 

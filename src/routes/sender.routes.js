@@ -23,5 +23,6 @@ router.post('/', validate(senderValidators.createSender), senderController.creat
 router.post('/:id/set-default', senderController.setDefaultSender);
 router.put('/:id', validate(senderValidators.updateSender), senderController.updateSender);
 router.delete('/:id', senderController.deleteSender);
+router.post('/:id/reactivate', senderController.reactivateSender);
 
 module.exports = router;

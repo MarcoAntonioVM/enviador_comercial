@@ -3,9 +3,7 @@ const { AppError } = require('../utils/errors');
 const { Op } = require('sequelize');
 
 class UserService {
-  /**
-   * Get all users with pagination and filters
-   */
+
   async getAllUsers(filters = {}) {
     const {
       page = 1,
@@ -19,13 +17,18 @@ class UserService {
 
     const offset = (page - 1) * limit;
     const where = {};
+    
+    // Default: only active users
+    if (active === undefined) {
+      where.active = true;
+    }
 
     if (role) {
       where.role = role;
     }
 
     if (active !== undefined) {
-      where.active = active;
+      where.active = active === 'true' || active === true;
     }
 
     if (search) {
@@ -53,9 +56,7 @@ class UserService {
     };
   }
 
-  /**
-   * Get user by ID
-   */
+
   async getUserById(id) {
     const user = await User.findByPk(id, {
       attributes: { exclude: ['password_hash'] }
@@ -68,22 +69,17 @@ class UserService {
     return user;
   }
 
-  /**
-   * Create new user
-   */
+
   async createUser(userData) {
     const { email, password, name, role = 'commercial' } = userData;
 
-    // Check if email already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       throw new AppError('Email already in use', 409);
     }
 
-    // Hash password
     const password_hash = await User.hashPassword(password);
 
-    // Create user
     const user = await User.create({
       email,
       password_hash,
@@ -92,12 +88,13 @@ class UserService {
       active: true
     });
 
-    return user.toJSON();
+    const data = user.toJSON();
+    delete data.password_hash;
+
+    return data;
   }
 
-  /**
-   * Update user
-   */
+
   async updateUser(id, userData) {
     const user = await User.findByPk(id);
 
@@ -107,7 +104,6 @@ class UserService {
 
     const { email, password, name, role, active } = userData;
 
-    // Check if new email is already in use
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
@@ -120,21 +116,24 @@ class UserService {
     if (email) updateData.email = email;
     if (name) updateData.name = name;
     if (role) updateData.role = role;
-    if (active !== undefined) updateData.active = active;
 
-    // Hash new password if provided
+    if (active !== undefined) {
+      updateData.active = active;
+    }
+
     if (password) {
       updateData.password_hash = await User.hashPassword(password);
     }
 
     await user.update(updateData);
 
-    return user.toJSON();
+    const data = user.toJSON();
+    delete data.password_hash;
+
+    return data;
   }
 
-  /**
-   * Delete user (soft delete)
-   */
+
   async deleteUser(id) {
     const user = await User.findByPk(id);
 
@@ -142,15 +141,25 @@ class UserService {
       throw new AppError('User not found', 404);
     }
 
-    // Soft delete by deactivating
     await user.update({ active: false });
 
     return { message: 'User deactivated successfully' };
   }
 
-  /**
-   * Reset user password
-   */
+
+  async reactivateUser(id) {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    await user.update({ active: true });
+
+    return { message: 'User reactivated successfully' };
+  }
+
+
   async resetPassword(id, newPassword) {
     const user = await User.findByPk(id);
 
@@ -159,20 +168,23 @@ class UserService {
     }
 
     const password_hash = await User.hashPassword(newPassword);
-    await user.update({ 
+
+    await user.update({
       password_hash,
-      failed_login_attempts: 0 
+      failed_login_attempts: 0
     });
 
     return { message: 'Password reset successfully' };
   }
 
-  /**
-   * Get user statistics
-   */
+
   async getUserStats() {
     const totalUsers = await User.count();
-    const activeUsers = await User.count({ where: { active: true } });
+
+    const activeUsers = await User.count({
+      where: { active: true }
+    });
+
     const usersByRole = await User.findAll({
       attributes: [
         'role',

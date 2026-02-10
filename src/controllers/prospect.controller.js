@@ -7,9 +7,7 @@ class ProspectController {
       const filters = {
         page: req.query.page,
         limit: req.query.limit,
-        status: req.query.status,
-        sector_id: req.query.sector_id,
-        consent_status: req.query.consent_status,
+        sector_name: req.query.sector_name,
         search: req.query.search,
         sortBy: req.query.sortBy,
         sortOrder: req.query.sortOrder
@@ -34,7 +32,7 @@ class ProspectController {
 
   async createProspect(req, res, next) {
     try {
-      const prospect = await prospectService.createProspect(req.body);
+      const prospect = await prospectService.createProspect(req.body, req.userId);
       successResponse(res, { prospect }, 'Prospect created successfully', 201);
     } catch (error) {
       next(error);
@@ -61,10 +59,20 @@ class ProspectController {
     }
   }
 
+  async reactivateProspect(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await prospectService.reactivateProspect(id);
+      successResponse(res, result, 'Prospect reactivated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async bulkImport(req, res, next) {
     try {
       const { prospects } = req.body;
-      const result = await prospectService.bulkImport(prospects);
+      const result = await prospectService.bulkImport(prospects, req.userId);
       successResponse(res, result, 'Bulk import completed');
     } catch (error) {
       next(error);

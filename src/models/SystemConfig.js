@@ -17,13 +17,18 @@ const SystemConfig = sequelize.define('SystemConfig', {
     allowNull: true
   },
   config_type: {
-    type: DataTypes.ENUM('string', 'number', 'boolean', 'json'),
+    type: DataTypes.STRING(50),
     allowNull: false,
     defaultValue: 'string'
   },
   description: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(500),
     allowNull: true
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at'
   },
   updated_at: {
     type: DataTypes.DATE,
@@ -32,7 +37,9 @@ const SystemConfig = sequelize.define('SystemConfig', {
   }
 }, {
   tableName: 'system_config',
-  timestamps: false,
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
   indexes: [
     { fields: ['config_key'] }
   ]

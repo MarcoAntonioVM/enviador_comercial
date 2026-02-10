@@ -23,7 +23,7 @@ class SenderController {
 
   async createSender(req, res, next) {
     try {
-      const sender = await senderService.createSender(req.body);
+      const sender = await senderService.createSender(req.body, req.userId);
       successResponse(res, { sender }, 'Sender created successfully', 201);
     } catch (error) {
       next(error);
@@ -45,6 +45,16 @@ class SenderController {
       const { id } = req.params;
       const result = await senderService.deleteSender(id);
       successResponse(res, result, 'Sender deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async reactivateSender(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await senderService.reactivateSender(id);
+      successResponse(res, result, 'Sender reactivated successfully');
     } catch (error) {
       next(error);
     }
@@ -91,7 +101,7 @@ class SenderController {
     try {
       const { senders } = req.body;
 
-      const result = await senderService.bulkCreateSenders(senders);
+      const result = await senderService.bulkCreateSenders(senders, req.userId);
       
       const statusCode = result.summary.failed === 0 ? 201 : 207; // 207 = Multi-
       
