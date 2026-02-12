@@ -33,7 +33,7 @@ const createAdmin = async () => {
       port: process.env.DB_PORT || 3306,
       user: process.env.DB_USER || 'admin_envios',
       password: process.env.DB_PASSWORD || 'Enviador#2025!',
-      database: process.env.DB_NAME || 'envios_comercial'
+      database: process.env.DB_NAME || 'envios_estandar'
     });
 
     console.log('✓ Conectado a la base de datos\n');

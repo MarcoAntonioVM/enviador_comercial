@@ -15,7 +15,7 @@ const seedData = async () => {
       port: process.env.DB_PORT || 3306,
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'envios_commercial'
+      database: process.env.DB_NAME || 'envios_estandar'
     });
 
     console.log('✓ Conectado a la base de datos\n');
