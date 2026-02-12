@@ -3,7 +3,7 @@ const app = require('./app');
 const { sequelize, testConnection } = require('./config/database');
 const log = require('./utils/logger');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3009;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 /**
