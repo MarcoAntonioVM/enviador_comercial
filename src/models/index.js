@@ -6,6 +6,7 @@ const Prospect = require('./Prospect');
 const EmailTemplate = require('./EmailTemplate');
 const Sender = require('./Sender');
 const SystemConfig = require('./SystemConfig');
+const Preconfiguration = require('./Preconfiguration');
 
 // ===========================
 // Define Relationships
@@ -25,6 +26,11 @@ EmailTemplate.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 // Sender relationships
 Sender.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 
+// Preconfiguration relationships
+Preconfiguration.belongsTo(EmailTemplate, { foreignKey: 'template_id', as: 'template' });
+Preconfiguration.belongsTo(Sender, { foreignKey: 'sender_id', as: 'sender' });
+Preconfiguration.belongsTo(Prospect, { foreignKey: 'prospect_id', as: 'prospect' });
+
 // Export all models and sequelize instance
 module.exports = {
   sequelize,
@@ -32,5 +38,6 @@ module.exports = {
   Prospect,
   EmailTemplate,
   Sender,
-  SystemConfig
+  SystemConfig,
+  Preconfiguration
 };
