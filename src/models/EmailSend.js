@@ -7,19 +7,19 @@ const EmailSend = sequelize.define('EmailSend', {
     primaryKey: true,
     autoIncrement: true
   },
-  campaign_id: {
+  preconfiguration_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'campaigns',
+      model: 'preconfigurations',
       key: 'id'
     }
   },
-  prospect_id: {
+  template_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'prospects',
+      model: 'email_templates',
       key: 'id'
     }
   },
@@ -31,65 +31,80 @@ const EmailSend = sequelize.define('EmailSend', {
       key: 'id'
     }
   },
-  tracking_id: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true
-  },
-  message_id: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  provider_response: {
-    type: DataTypes.JSON,
-    allowNull: true
-  },
-  status: {
-    type: DataTypes.ENUM('queued', 'sent', 'delivered', 'bounced', 'failed', 'spam_reported'),
-    allowNull: false,
-    defaultValue: 'queued'
-  },
-  retry_count: {
+  prospect_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
-  },
-  last_retry_at: {
-    type: DataTypes.DATE,
-    allowNull: true
+    references: {
+      model: 'prospects',
+      key: 'id'
+    }
   },
   sent_at: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: false,
+    comment: 'Hora en que se envió el correo'
   },
-  delivered_at: {
-    type: DataTypes.DATE,
+  status: {
+    type: DataTypes.ENUM('sent', 'failed', 'pending'),
+    allowNull: false,
+    defaultValue: 'sent'
+  },
+  brevo_message_id: {
+    type: DataTypes.STRING(255),
     allowNull: true
   },
   error_message: {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  delivered_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Hora en que Brevo confirma entrega'
+  },
+  opened_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Primera apertura del correo'
+  },
+  clicked_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Primer clic en enlace'
+  },
+  bounced_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  bounce_type: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    comment: 'soft_bounce, hard_bounce'
+  },
+  spam_reported_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  unsubscribed_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     field: 'created_at'
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'updated_at'
   }
 }, {
   tableName: 'email_sends',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at',
+  updatedAt: false,
   indexes: [
-    { fields: ['campaign_id', 'status'] },
-    { fields: ['campaign_id', 'sent_at'] },
-    { fields: ['sender_id', 'status'] },
-    { fields: ['message_id'] }
+    { fields: ['preconfiguration_id'] },
+    { fields: ['sent_at'] },
+    { fields: ['prospect_id'] },
+    { fields: ['status'] },
+    { fields: ['brevo_message_id'] }
   ]
 });
 

@@ -132,7 +132,10 @@ const options = {
       { name: 'Users', description: 'User management' },
       { name: 'Prospects', description: 'Prospect management' },
       { name: 'Templates', description: 'Email template management' },
-      { name: 'Senders', description: 'Sender configuration' }
+      { name: 'Senders', description: 'Sender configuration' },
+      { name: 'Preconfigurations', description: 'Scheduled send preconfigurations' },
+      { name: 'Email Sends', description: 'Record of sent emails (send time and metadata)' },
+      { name: 'Webhooks', description: 'Brevo webhooks to update email_sends events' }
     ]
   },
   apis: ['./src/routes/*.js']

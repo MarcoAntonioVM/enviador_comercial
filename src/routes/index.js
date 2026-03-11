@@ -9,6 +9,8 @@ const templateRoutes = require('./template.routes');
 const senderRoutes = require('./sender.routes');
 const emailRoutes = require('./email.routes');
 const preconfigurationRoutes = require('./preconfiguration.routes');
+const emailSendRoutes = require('./emailSend.routes');
+const webhooksRoutes = require('./webhooks.routes');
 
 // API version prefix
 const API_VERSION = process.env.API_VERSION || 'v1';
@@ -35,5 +37,7 @@ router.use(`/api/${API_VERSION}/templates`, templateRoutes);
 router.use(`/api/${API_VERSION}/senders`, senderRoutes);
 router.use(`/api/${API_VERSION}/email`, emailRoutes);
 router.use(`/api/${API_VERSION}/preconfigurations`, preconfigurationRoutes);
+router.use(`/api/${API_VERSION}/email-sends`, emailSendRoutes);
+router.use(`/api/${API_VERSION}/webhooks`, webhooksRoutes);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const preconfigurationService = require('../services/preconfiguration.service');
+const emailSendService = require('../services/emailSend.service');
 const { successResponse, paginatedResponse } = require('../utils/response');
 const { AppError } = require('../utils/errors');
 
@@ -86,6 +87,20 @@ class PreconfigurationController {
       const result = await preconfigurationService.delete(id);
 
       successResponse(res, result, 'Preconfiguration deleted successfully', 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/v1/preconfigurations/:id/execute
+   * Ejecuta el envío de la preconfiguración (envía el correo y guarda la hora del envío).
+   */
+  async execute(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await emailSendService.executePreconfiguration(id);
+      successResponse(res, result, 'Email sent and send time recorded', 200);
     } catch (error) {
       next(error);
     }

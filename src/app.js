@@ -20,6 +20,7 @@ app.use(helmet());
   origin: process.env.CORS_ORIGIN || '*',
   credentials: true
 }));*/
+
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
@@ -40,7 +41,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-brevo-signature']
 };
 
 app.use(cors(corsOptions));
@@ -61,7 +62,15 @@ const limiter = rateLimit({
 // General Middlewares
 // ===========================
 app.use(compression());
-app.use(express.json({ limit: '10mb' }));
+// Guardar body raw para verificación de firma del webhook Brevo (HMAC sobre body sin parsear)
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf, encoding) => {
+    if (req.originalUrl && req.originalUrl.includes('/webhooks/brevo')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging

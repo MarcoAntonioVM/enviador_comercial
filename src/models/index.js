@@ -7,6 +7,7 @@ const EmailTemplate = require('./EmailTemplate');
 const Sender = require('./Sender');
 const SystemConfig = require('./SystemConfig');
 const Preconfiguration = require('./Preconfiguration');
+const EmailSend = require('./EmailSend');
 
 // ===========================
 // Define Relationships
@@ -31,6 +32,13 @@ Preconfiguration.belongsTo(EmailTemplate, { foreignKey: 'template_id', as: 'temp
 Preconfiguration.belongsTo(Sender, { foreignKey: 'sender_id', as: 'sender' });
 Preconfiguration.belongsTo(Prospect, { foreignKey: 'prospect_id', as: 'prospect' });
 
+// EmailSend (registro de envíos por preconfiguración)
+Preconfiguration.hasMany(EmailSend, { foreignKey: 'preconfiguration_id', as: 'emailSends' });
+EmailSend.belongsTo(Preconfiguration, { foreignKey: 'preconfiguration_id', as: 'preconfiguration' });
+EmailSend.belongsTo(EmailTemplate, { foreignKey: 'template_id', as: 'template' });
+EmailSend.belongsTo(Sender, { foreignKey: 'sender_id', as: 'sender' });
+EmailSend.belongsTo(Prospect, { foreignKey: 'prospect_id', as: 'prospect' });
+
 // Export all models and sequelize instance
 module.exports = {
   sequelize,
@@ -39,5 +47,6 @@ module.exports = {
   EmailTemplate,
   Sender,
   SystemConfig,
-  Preconfiguration
+  Preconfiguration,
+  EmailSend
 };
