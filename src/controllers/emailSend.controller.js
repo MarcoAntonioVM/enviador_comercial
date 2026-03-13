@@ -33,6 +33,26 @@ class EmailSendController {
   }
 
   /**
+   * GET /api/v1/email-sends/stats
+   * Estadísticas agregadas de envíos (totales, tasas de entrega, apertura, clic, rebote...).
+   * Filtros opcionales: preconfiguration_id, prospect_id, from_date, to_date
+   */
+  async getStats(req, res, next) {
+    try {
+      const filters = {
+        preconfiguration_id: req.query.preconfiguration_id,
+        prospect_id:         req.query.prospect_id,
+        from_date:           req.query.from_date,
+        to_date:             req.query.to_date
+      };
+      const stats = await emailSendService.getStats(filters);
+      successResponse(res, { stats }, 'Email send stats retrieved successfully', 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/v1/email-sends/:id
    */
   async getById(req, res, next) {
