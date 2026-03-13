@@ -15,6 +15,13 @@ const emailValidators = {
   }).or('html', 'text').messages({
     'object.missing': 'Either html or text content is required'
   })
+  ,
+  sendByPreconfiguration: Joi.object({
+    preconfiguration_id: Joi.number().integer().positive().required().messages({
+      'any.required': 'preconfiguration_id is required',
+      'number.base': 'preconfiguration_id must be a number'
+    })
+  })
 };
 
 module.exports = emailValidators;
