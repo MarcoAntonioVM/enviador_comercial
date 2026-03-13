@@ -104,6 +104,58 @@ class EmailSendService {
   }
 
   /**
+   * Estadísticas generales de email_sends con filtros opcionales.
+   */
+  async getStats(filters = {}) {
+    const { preconfiguration_id, prospect_id, from_date, to_date } = filters;
+
+    const where = {};
+    if (preconfiguration_id) where.preconfiguration_id = preconfiguration_id;
+    if (prospect_id) where.prospect_id = prospect_id;
+    if (from_date || to_date) {
+      where.sent_at = {};
+      if (from_date) where.sent_at[Op.gte] = new Date(from_date);
+      if (to_date)   where.sent_at[Op.lte] = new Date(to_date);
+    }
+
+    const total = await EmailSend.count({ where });
+
+    // Conteos por estado y por columna de tracking
+    const [delivered, opened, clicked, bounced, spam, unsubscribed] = await Promise.all([
+      EmailSend.count({ where: { ...where, delivered_at: { [Op.ne]: null } } }),
+      EmailSend.count({ where: { ...where, opened_at:    { [Op.ne]: null } } }),
+      EmailSend.count({ where: { ...where, clicked_at:   { [Op.ne]: null } } }),
+      EmailSend.count({ where: { ...where, bounced_at:   { [Op.ne]: null } } }),
+      EmailSend.count({ where: { ...where, spam_reported_at: { [Op.ne]: null } } }),
+      EmailSend.count({ where: { ...where, unsubscribed_at:  { [Op.ne]: null } } })
+    ]);
+
+    const failed  = await EmailSend.count({ where: { ...where, status: 'failed' } });
+
+    const rate = (n) => total > 0 ? parseFloat(((n / total) * 100).toFixed(2)) : 0;
+
+    return {
+      total,
+      delivered,
+      opened,
+      clicked,
+      bounced,
+      spam,
+      unsubscribed,
+      failed,
+      rates: {
+        delivered_rate:    rate(delivered),
+        open_rate:         rate(opened),
+        click_rate:        rate(clicked),
+        bounce_rate:       rate(bounced),
+        spam_rate:         rate(spam),
+        unsubscribed_rate: rate(unsubscribed),
+        failed_rate:       rate(failed)
+      }
+    };
+  }
+
+  /**
    * Ejecutar el envío de una preconfiguración: envía el correo y guarda la hora del envío.
    * Pensado para ser llamado por un cron/job o manualmente (ej. endpoint de prueba).
    */
