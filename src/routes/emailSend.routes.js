@@ -6,6 +6,7 @@ const { authenticate } = require('../middlewares/auth.middleware');
 router.use(authenticate);
 
 router.get('/', emailSendController.getAll);
+router.get('/stats', emailSendController.getStats); 
 router.get('/:id', emailSendController.getById);
 
 module.exports = router;

@@ -8,5 +8,6 @@ const emailValidators = require('../validators/email.validator');
 router.use(authenticate);
 
 router.post('/send-test', validate(emailValidators.sendTest), emailController.sendTest);
+router.post('/send-by-preconfiguration', validate(emailValidators.sendByPreconfiguration), emailController.sendByPreconfiguration);
 
 module.exports = router;
