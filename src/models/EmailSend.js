@@ -45,7 +45,7 @@ const EmailSend = sequelize.define('EmailSend', {
     comment: 'Hora en que se envió el correo'
   },
   status: {
-    type: DataTypes.ENUM('sent', 'failed', 'pending'),
+    type: DataTypes.ENUM('sent', 'failed', 'pending', 'delivered', 'bounced', 'spam', 'unsubscribed'),
     allowNull: false,
     defaultValue: 'sent'
   },
