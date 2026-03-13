@@ -35,6 +35,7 @@ router.use(`/api/${API_VERSION}/users`, userRoutes);
 router.use(`/api/${API_VERSION}/prospects`, prospectRoutes);
 router.use(`/api/${API_VERSION}/templates`, templateRoutes);
 router.use(`/api/${API_VERSION}/senders`, senderRoutes);
+router.use(`/api/${API_VERSION}/email/webhooks`, webhooksRoutes); // Webhook bajo /email/webhooks debe ir ANTES que /email para evitar el middleware authenticate
 router.use(`/api/${API_VERSION}/email`, emailRoutes);
 router.use(`/api/${API_VERSION}/preconfigurations`, preconfigurationRoutes);
 router.use(`/api/${API_VERSION}/email-sends`, emailSendRoutes);
