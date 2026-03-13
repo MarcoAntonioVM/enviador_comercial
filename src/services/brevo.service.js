@@ -86,6 +86,11 @@ class BrevoService {
       throw new AppError('Either htmlContent or textContent is required', 400);
     }
 
+    // Prefer REST API when API key is configured, otherwise fall back to SMTP
+    if (this.apiKey && this.apiKey.trim()) {
+      return this._sendViaRest({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo });
+    }
+
     if (this._isSmtpConfigured()) {
       return this._sendViaSmtp({
         senderEmail,
@@ -96,10 +101,6 @@ class BrevoService {
         textContent,
         replyTo
       });
-    }
-
-    if (this.apiKey && this.apiKey.trim()) {
-      return this._sendViaRest({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo });
     }
 
     throw new AppError(
