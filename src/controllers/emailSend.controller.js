@@ -91,6 +91,26 @@ class EmailSendController {
   }
 
   /**
+   * GET /api/v1/email-sends/timeseries
+   * Series temporales agrupadas por día: delivered, opened, clicked.
+   * Filtros opcionales: preconfiguration_id, prospect_id, from_date, to_date
+   */
+  async getTimeSeries(req, res, next) {
+    try {
+      const filters = {
+        preconfiguration_id: req.query.preconfiguration_id,
+        prospect_id: req.query.prospect_id,
+        from_date: req.query.from_date,
+        to_date: req.query.to_date
+      };
+      const by_date = await emailSendService.getTimeSeries(filters);
+      successResponse(res, { by_date }, 'Email send time series retrieved successfully', 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/v1/email-sends/:id
    */
   async getById(req, res, next) {
