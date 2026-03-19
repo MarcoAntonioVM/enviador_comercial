@@ -231,6 +231,46 @@ class EmailSendService {
       throw error;
     }
   }
+
+  /**
+   * Series de tiempo: conteo de delivered, opened, clicked agrupado por día.
+   * Filtros opcionales: preconfiguration_id, prospect_id, from_date, to_date
+   */
+  async getTimeSeries(filters = {}) {
+    const { preconfiguration_id, prospect_id, from_date, to_date } = filters;
+    const { sequelize } = EmailSend;
+
+    const where = {};
+    if (preconfiguration_id) where.preconfiguration_id = preconfiguration_id;
+    if (prospect_id) where.prospect_id = prospect_id;
+    if (from_date || to_date) {
+      where.sent_at = {};
+      if (from_date) where.sent_at[Op.gte] = new Date(from_date);
+      if (to_date) where.sent_at[Op.lte] = new Date(`${to_date}T23:59:59`);
+    }
+
+    const rows = await EmailSend.findAll({
+      where,
+      attributes: [
+        [sequelize.fn('DATE', sequelize.col('sent_at')), 'date'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'sent'],
+        [sequelize.fn('SUM', sequelize.literal('CASE WHEN delivered_at IS NOT NULL THEN 1 ELSE 0 END')), 'delivered'],
+        [sequelize.fn('SUM', sequelize.literal('CASE WHEN opened_at IS NOT NULL THEN 1 ELSE 0 END')), 'opened'],
+        [sequelize.fn('SUM', sequelize.literal('CASE WHEN clicked_at IS NOT NULL THEN 1 ELSE 0 END')), 'clicked']
+      ],
+      group: [sequelize.fn('DATE', sequelize.col('sent_at'))],
+      order: [[sequelize.fn('DATE', sequelize.col('sent_at')), 'ASC']],
+      raw: true
+    });
+
+    return rows.map(r => ({
+      date: r.date,
+      sent: parseInt(r.sent) || 0,
+      delivered: parseInt(r.delivered) || 0,
+      opened: parseInt(r.opened) || 0,
+      clicked: parseInt(r.clicked) || 0
+    }));
+  }
 }
 
 module.exports = new EmailSendService();
