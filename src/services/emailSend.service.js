@@ -1,6 +1,8 @@
 const { EmailSend, Preconfiguration, EmailTemplate, Sender, Prospect } = require('../models');
 const { AppError } = require('../utils/errors');
 const brevoService = require('./brevo.service');
+const { getDayBoundsUtc } = require('../utils/preconfigurationSchedule');
+const { DateTime } = require('luxon');
 const { Op } = require('sequelize');
 
 class EmailSendService {
@@ -87,6 +89,7 @@ class EmailSendService {
       prospect_id,
       sent_at,
       status = 'sent',
+      trigger_source = 'manual',
       brevo_message_id,
       error_message
     } = data;
@@ -98,9 +101,38 @@ class EmailSendService {
       prospect_id,
       sent_at: sent_at || new Date(),
       status,
+      trigger_source,
       brevo_message_id: brevo_message_id || null,
       error_message: error_message || null
     });
+  }
+
+  /**
+   * True si ya hubo un envío automático (scheduled) hoy en la zona indicada.
+   * Los envíos manuales no bloquean el cron.
+   */
+  async hasScheduledSendToday(preconfigurationId, timeZone) {
+    const tz = timeZone || process.env.SCHEDULER_TIMEZONE || 'UTC';
+    const { start, end } = getDayBoundsUtc(tz, DateTime.now());
+    const count = await EmailSend.count({
+      where: {
+        preconfiguration_id: preconfigurationId,
+        trigger_source: 'scheduled',
+        sent_at: { [Op.between]: [start, end] }
+      }
+    });
+    return count > 0;
+  }
+
+  /**
+   * Envío por job: anti-duplicado solo frente a otros scheduled del mismo día (misma TZ).
+   */
+  async executeScheduledPreconfiguration(preconfigurationId, timeZone) {
+    const tz = timeZone || process.env.SCHEDULER_TIMEZONE || 'UTC';
+    if (await this.hasScheduledSendToday(preconfigurationId, tz)) {
+      return { skipped: true, reason: 'already_sent_today' };
+    }
+    return this.executePreconfiguration(preconfigurationId, { triggerSource: 'scheduled' });
   }
 
   /**
@@ -159,7 +191,8 @@ class EmailSendService {
    * Ejecutar el envío de una preconfiguración: envía el correo y guarda la hora del envío.
    * Pensado para ser llamado por un cron/job o manualmente (ej. endpoint de prueba).
    */
-  async executePreconfiguration(preconfigurationId) {
+  async executePreconfiguration(preconfigurationId, options = {}) {
+    const triggerSource = options.triggerSource === 'scheduled' ? 'scheduled' : 'manual';
     const preconfig = await Preconfiguration.findByPk(preconfigurationId, {
       include: [
         { model: EmailTemplate, as: 'template' },
@@ -207,6 +240,7 @@ class EmailSendService {
         prospect_id: prospect.id,
         sent_at: sentAt,
         status: 'sent',
+        trigger_source: triggerSource,
         brevo_message_id: result?.messageId || null
       });
 
@@ -225,6 +259,7 @@ class EmailSendService {
         prospect_id: prospect.id,
         sent_at: sentAt,
         status: 'failed',
+        trigger_source: triggerSource,
         error_message: error.message || String(error)
       }).catch(() => {});
 
