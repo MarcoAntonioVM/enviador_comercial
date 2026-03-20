@@ -49,6 +49,16 @@ const EmailSend = sequelize.define('EmailSend', {
     allowNull: false,
     defaultValue: 'sent'
   },
+  trigger_source: {
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    defaultValue: 'manual',
+    field: 'trigger_source',
+    validate: {
+      isIn: [['manual', 'scheduled']]
+    },
+    comment: 'manual: API / usuario; scheduled: job por days_week + hour'
+  },
   brevo_message_id: {
     type: DataTypes.STRING(255),
     allowNull: true
@@ -101,6 +111,7 @@ const EmailSend = sequelize.define('EmailSend', {
   updatedAt: false,
   indexes: [
     { fields: ['preconfiguration_id'] },
+    { fields: ['preconfiguration_id', 'trigger_source', 'sent_at'] },
     { fields: ['sent_at'] },
     { fields: ['prospect_id'] },
     { fields: ['status'] },
