@@ -1,7 +1,6 @@
 const { Preconfiguration, EmailTemplate, Sender, Prospect } = require('../models');
 const { AppError } = require('../utils/errors');
-
-const VALID_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const { VALID_DAYS } = require('../utils/preconfigurationSchedule');
 
 class PreconfigurationService {
 
@@ -136,6 +135,16 @@ class PreconfigurationService {
 
     await preconfig.destroy();
     return { id: parseInt(id) };
+  }
+
+  /**
+   * Listado ligero para el job programado (solo filas activas).
+   */
+  async findAllActiveForScheduler() {
+    return Preconfiguration.findAll({
+      where: { active: true },
+      attributes: ['id', 'days_week', 'hour', 'active']
+    });
   }
 }
 
