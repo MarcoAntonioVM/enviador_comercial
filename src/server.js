@@ -2,6 +2,10 @@ require('dotenv').config();
 const app = require('./app');
 const { sequelize, testConnection } = require('./config/database');
 const log = require('./utils/logger');
+const {
+  startPreconfigurationScheduler,
+  stopPreconfigurationScheduler
+} = require('./jobs/preconfigurationScheduler');
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -35,11 +39,14 @@ const startServer = async () => {
       log.info(`API Documentation: http://localhost:${PORT}/api-docs`);
       log.info(`Health check: http://localhost:${PORT}/health`);
       log.info('=================================');
+      startPreconfigurationScheduler();
     });
 
     // Graceful shutdown
     const gracefulShutdown = async (signal) => {
       log.info(`\n${signal} received. Starting graceful shutdown...`);
+
+      await stopPreconfigurationScheduler();
 
       server.close(async () => {
         log.info('HTTP server closed');
