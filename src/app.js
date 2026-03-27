@@ -41,7 +41,14 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-brevo-signature']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'x-brevo-signature',
+    'x-brevo-webhook-token',
+    'x-sib-webhook-secret'
+  ]
 };
 
 app.use(cors(corsOptions));
