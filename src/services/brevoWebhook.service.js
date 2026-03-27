@@ -78,9 +78,9 @@ const EVENT_COLUMN_MAP = {
   delivered:     'delivered_at',
 
   // Aperturas y Clics
-  opened:        'opened_at',
+  //opened:        'opened_at',
   unique_opened: 'opened_at',
-  loadedByProxy: 'opened_at', // Proxy Open (Apple Mail)
+  //loadedByProxy: 'opened_at', // Proxy Open (Apple Mail)
   click:         'clicked_at',
   clicks:        'clicked_at',
 
