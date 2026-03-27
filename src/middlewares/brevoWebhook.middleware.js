@@ -1,26 +1,38 @@
 const crypto = require('crypto');
 
 /**
- * Middleware que verifica el token del webhook de Brevo.
- * Brevo envía el secret como valor literal en el header "x-sib-webhook-secret"
- * (o "x-brevo-webhook-token" según versión).
- * - Si BREVO_WEBHOOK_SECRET no está en .env: no se valida (se permite la petición).
- * - Si está definido: se compara el header con comparación timing-safe.
+ * Token enviado por Brevo según configuración del webhook:
+ * - Método "Token" en el panel: Authorization: Bearer <token>
+ * - Otros: x-sib-webhook-secret / x-brevo-webhook-token (valor literal)
+ *
+ * Valor esperado en servidor: BREVO_WEBHOOK_TOKEN (mismo string que en Brevo).
  */
+function extractIncomingWebhookToken(req) {
+  const auth = req.headers.authorization;
+  if (auth && typeof auth === 'string') {
+    const bearer = auth.match(/^Bearer\s+(.+)$/i);
+    if (bearer) return bearer[1].trim();
+    const tokenScheme = auth.match(/^Token\s+(.+)$/i);
+    if (tokenScheme) return tokenScheme[1].trim();
+  }
+  return (
+    req.headers['x-brevo-webhook-token'] ||
+    req.headers['x-sib-webhook-secret'] ||
+    req.headers['x-brevo-signature'] ||
+    null
+  );
+}
+
 function verifyBrevoWebhook(req, res, next) {
-  const secret = process.env.BREVO_WEBHOOK_SECRET;
+  const secret =
+    process.env.BREVO_WEBHOOK_TOKEN || process.env.BREVO_WEBHOOK_SECRET;
   const secretSet = secret != null && String(secret).trim() !== '';
 
   if (!secretSet) {
     return next();
   }
 
-  // Brevo puede enviar el token en cualquiera de estos headers según versión
-  const token =
-    req.headers['x-brevo-webhook-token'] ||
-    req.headers['x-sib-webhook-secret'] ||
-    req.headers['x-brevo-signature'] ||
-    null;
+  const token = extractIncomingWebhookToken(req);
 
   if (!token) {
     return res.status(401).json({
