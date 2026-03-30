@@ -44,6 +44,16 @@ const Preconfiguration = sequelize.define('Preconfiguration', {
     },
     comment: 'Hour in HH:MM format'
   },
+  cc: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'CC recipients: [{ email, name? }]'
+  },
+  bcc: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'BCC recipients: [{ email, name? }]'
+  },
   active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
