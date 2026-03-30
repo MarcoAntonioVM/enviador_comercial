@@ -50,13 +50,21 @@ class PreconfigurationController {
    */
   async create(req, res, next) {
     try {
-      const { template_id, sender_id, prospect_id, days_week, hour } = req.body;
+      const { template_id, sender_id, prospect_id, days_week, hour, cc, bcc } = req.body;
 
       if (!template_id || !sender_id || !prospect_id || !days_week || !hour) {
         throw new AppError('template_id, sender_id, prospect_id, days_week and hour are required', 400);
       }
 
-      const preconfig = await preconfigurationService.create({ template_id, sender_id, prospect_id, days_week, hour });
+      const preconfig = await preconfigurationService.create({
+        template_id,
+        sender_id,
+        prospect_id,
+        days_week,
+        hour,
+        cc,
+        bcc
+      });
 
       successResponse(res, { preconfiguration: preconfig }, 'Preconfiguration created successfully', 201);
     } catch (error) {
