@@ -32,7 +32,7 @@ class EmailSendService {
     if (from_date || to_date) {
       where.sent_at = {};
       if (from_date) where.sent_at[Op.gte] = new Date(from_date);
-      if (to_date) where.sent_at[Op.lte] = new Date(to_date);
+      if (to_date) where.sent_at[Op.lte] = new Date(`${to_date}T23:59:59`);
     }
 
     const { count, rows } = await EmailSend.findAndCountAll({
@@ -147,7 +147,7 @@ class EmailSendService {
     if (from_date || to_date) {
       where.sent_at = {};
       if (from_date) where.sent_at[Op.gte] = new Date(from_date);
-      if (to_date)   where.sent_at[Op.lte] = new Date(to_date);
+      if (to_date) where.sent_at[Op.lte] = new Date(`${to_date}T23:59:59`);
     }
 
     const total = await EmailSend.count({ where });
@@ -222,6 +222,9 @@ class EmailSendService {
     const htmlContent = template.html_content || '';
     const textContent = (template.html_content || '').replace(/<[^>]*>/g, ' ').trim() || subject;
 
+    const cc = Array.isArray(preconfig.cc) && preconfig.cc.length ? preconfig.cc : undefined;
+    const bcc = Array.isArray(preconfig.bcc) && preconfig.bcc.length ? preconfig.bcc : undefined;
+
     try {
       const result = await brevoService.sendTransactionalEmail({
         sender: { name: sender.name, email: sender.email },
@@ -229,7 +232,9 @@ class EmailSendService {
         subject,
         htmlContent,
         textContent,
-        replyTo: sender.reply_to || undefined
+        replyTo: sender.reply_to || undefined,
+        ...(cc && { cc }),
+        ...(bcc && { bcc })
       });
 
       const sentAt = new Date();
