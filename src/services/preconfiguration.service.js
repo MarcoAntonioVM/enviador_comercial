@@ -61,7 +61,7 @@ class PreconfigurationService {
   }
 
   async create(data) {
-    const { template_id, sender_id, prospect_id, days_week, hour } = data;
+    const { template_id, sender_id, prospect_id, days_week, hour, cc, bcc } = data;
 
     // Validate days_week values
     if (!Array.isArray(days_week) || days_week.length === 0) {
@@ -83,6 +83,8 @@ class PreconfigurationService {
       prospect_id,
       days_week,
       hour,
+      cc: cc ?? null,
+      bcc: bcc ?? null,
       active: true
     });
 
@@ -96,13 +98,15 @@ class PreconfigurationService {
       throw new AppError('Preconfiguration not found', 404);
     }
 
-    const { template_id, sender_id, prospect_id, days_week, hour, active } = data;
+    const { template_id, sender_id, prospect_id, days_week, hour, active, cc, bcc } = data;
     const updateData = {};
 
     if (template_id !== undefined) updateData.template_id = template_id;
     if (sender_id !== undefined) updateData.sender_id = sender_id;
     if (prospect_id !== undefined) updateData.prospect_id = prospect_id;
     if (active !== undefined) updateData.active = active;
+    if (cc !== undefined) updateData.cc = cc;
+    if (bcc !== undefined) updateData.bcc = bcc;
 
     if (days_week !== undefined) {
       if (!Array.isArray(days_week) || days_week.length === 0) {
