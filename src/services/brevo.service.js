@@ -62,10 +62,12 @@ class BrevoService {
    * @param {string} [options.htmlContent] - Cuerpo HTML
    * @param {string} [options.textContent] - Cuerpo texto plano (opcional)
    * @param {string} [options.replyTo] - Reply-To (opcional)
+   * @param {{ email: string, name?: string }[]} [options.cc]
+   * @param {{ email: string, name?: string }[]} [options.bcc]
    * @returns {Promise<{ messageId: string }>}
    */
   async sendTransactionalEmail(options) {
-    const { sender, to, subject, htmlContent, textContent, replyTo } = options;
+    const { sender, to, subject, htmlContent, textContent, replyTo, cc, bcc } = options;
 
     const senderEmail = sender?.email || this.defaultSenderEmail;
     const senderName = sender?.name || this.defaultSenderName;
@@ -86,9 +88,22 @@ class BrevoService {
       throw new AppError('Either htmlContent or textContent is required', 400);
     }
 
+    const ccNorm = this._normalizeRecipientList(cc);
+    const bccNorm = this._normalizeRecipientList(bcc);
+
     // Prefer REST API when API key is configured, otherwise fall back to SMTP
     if (this.apiKey && this.apiKey.trim()) {
-      return this._sendViaRest({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo });
+      return this._sendViaRest({
+        senderEmail,
+        senderName,
+        to,
+        subject,
+        htmlContent,
+        textContent,
+        replyTo,
+        cc: ccNorm,
+        bcc: bccNorm
+      });
     }
 
     if (this._isSmtpConfigured()) {
@@ -99,7 +114,9 @@ class BrevoService {
         subject,
         htmlContent,
         textContent,
-        replyTo
+        replyTo,
+        cc: ccNorm,
+        bcc: bccNorm
       });
     }
 
@@ -109,32 +126,69 @@ class BrevoService {
     );
   }
 
-  async _sendViaSmtp({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo }) {
+  /**
+   * CC/BCC desde JSON o clientes variados: string, { email }, o { Email }.
+   * Omite entradas sin email; si no queda ninguna, no se envía cabecera a Brevo.
+   */
+  _normalizeRecipientList(list) {
+    if (!Array.isArray(list) || list.length === 0) return undefined;
+    const out = [];
+    for (const item of list) {
+      let email;
+      let name;
+      if (typeof item === 'string') {
+        email = item.trim();
+      } else if (item && typeof item === 'object') {
+        const raw = item.email ?? item.Email;
+        email = raw != null ? String(raw).trim() : '';
+        name = item.name != null ? String(item.name).trim() : '';
+      }
+      if (!email) continue;
+      out.push({ email, name: name || email });
+    }
+    return out.length ? out : undefined;
+  }
+
+  _smtpAddressList(list) {
+    if (!list || !list.length) return undefined;
+    return list.map(t => (t.name ? `"${t.name}" <${t.email}>` : t.email)).join(', ');
+  }
+
+  async _sendViaSmtp({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo, cc, bcc }) {
     const transport = this._getTransport();
+    const ccHeader = this._smtpAddressList(cc);
+    const bccHeader = this._smtpAddressList(bcc);
     const mailOptions = {
       from: senderName ? `"${senderName}" <${senderEmail}>` : senderEmail,
       to: to.map(t => (t.name ? `"${t.name}" <${t.email}>` : t.email)).join(', '),
       subject: String(subject).trim(),
       ...(htmlContent && { html: String(htmlContent) }),
       ...(textContent && { text: String(textContent) }),
-      ...(replyTo && replyTo.trim() && { replyTo: replyTo.trim() })
+      ...(replyTo && replyTo.trim() && { replyTo: replyTo.trim() }),
+      ...(ccHeader && { cc: ccHeader }),
+      ...(bccHeader && { bcc: bccHeader })
     };
 
     const info = await transport.sendMail(mailOptions);
     return { messageId: info.messageId || info.response || 'ok' };
   }
 
-  _sendViaRest({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo }) {
-    const body = {
-      sender: { name: senderName, email: senderEmail },
-      to: to.map(t => ({
+  _sendViaRest({ senderEmail, senderName, to, subject, htmlContent, textContent, replyTo, cc, bcc }) {
+    const mapRecipients = (list) =>
+      list.map(t => ({
         email: t.email,
         name: t.name || t.email
-      })),
+      }));
+
+    const body = {
+      sender: { name: senderName, email: senderEmail },
+      to: mapRecipients(to),
       subject: String(subject).trim(),
       ...(htmlContent && { htmlContent: String(htmlContent) }),
       ...(textContent && { textContent: String(textContent) }),
-      ...(replyTo && replyTo.trim() && { replyTo: { email: replyTo.trim() } })
+      ...(replyTo && replyTo.trim() && { replyTo: { email: replyTo.trim() } }),
+      ...(cc && { cc: mapRecipients(cc) }),
+      ...(bcc && { bcc: mapRecipients(bcc) })
     };
 
     return this._post(BREVO_SMTP_PATH, body);
