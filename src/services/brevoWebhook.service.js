@@ -140,6 +140,12 @@ async function processWebhookEvent(payload) {
         : new Date();
 
   const finalDate = isNaN(eventDate.getTime()) ? new Date() : eventDate;
+
+  // Preservar la primera apertura: si opened_at ya está registrado, no sobreescribir
+  if (column === 'opened_at' && record.opened_at) {
+    return { skipped: true, event, messageId, reason: 'first open already recorded' };
+  }
+
   const updateData = { [column]: finalDate };
 
   // --- Lógica de estados actualizada ---
