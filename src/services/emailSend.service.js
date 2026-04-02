@@ -126,12 +126,32 @@ class EmailSendService {
 
   /**
    * Envío por job: anti-duplicado solo frente a otros scheduled del mismo día (misma TZ).
+   * Si la hora de la preconfiguración cambió respecto al último envío de hoy, permite reenviar.
    */
   async executeScheduledPreconfiguration(preconfigurationId, timeZone) {
     const tz = timeZone || process.env.SCHEDULER_TIMEZONE || 'UTC';
-    if (await this.hasScheduledSendToday(preconfigurationId, tz)) {
-      return { skipped: true, reason: 'already_sent_today' };
+    const { start, end } = getDayBoundsUtc(tz, DateTime.now());
+
+    const lastSend = await EmailSend.findOne({
+      where: {
+        preconfiguration_id: preconfigurationId,
+        trigger_source: 'scheduled',
+        sent_at: { [Op.between]: [start, end] }
+      },
+      order: [['sent_at', 'DESC']]
+    });
+
+    if (lastSend) {
+      const preconfig = await Preconfiguration.findByPk(preconfigurationId, { attributes: ['hour'] });
+      const configuredHour = preconfig?.hour;
+      const sentHour = DateTime.fromJSDate(new Date(lastSend.sent_at)).setZone(tz).toFormat('HH:mm');
+
+      if (sentHour === configuredHour) {
+        return { skipped: true, reason: 'already_sent_today' };
+      }
+      // La hora de la preconfiguración cambió → se permite reenviar
     }
+
     return this.executePreconfiguration(preconfigurationId, { triggerSource: 'scheduled' });
   }
 
