@@ -33,6 +33,24 @@ function isPreconfigurationDue(preconfig, nowInZone) {
 }
 
 /**
+ * Devuelve true si la preconfiguración debería haberse ejecutado hoy pero
+ * la ventana de 5 min ya pasó (la hora programada está en el pasado).
+ * Útil para el catchup al reiniciar el servidor.
+ */
+function isPreconfigurationMissed(preconfig, nowInZone) {
+  if (!preconfig || !nowInZone || !nowInZone.isValid) return false;
+  const weekdayIndex = nowInZone.weekday - 1;
+  const dayKey = VALID_DAYS[weekdayIndex];
+  const days = normalizeDaysWeek(preconfig.days_week);
+  if (!days.includes(dayKey)) return false;
+  if (!preconfig.hour || !/^\d{2}:\d{2}$/.test(preconfig.hour)) return false;
+  const [h, m] = preconfig.hour.split(':').map(Number);
+  const scheduledTime = nowInZone.set({ hour: h, minute: m, second: 0, millisecond: 0 });
+  const diffMinutes = nowInZone.diff(scheduledTime, 'minutes').minutes;
+  return diffMinutes > 5;
+}
+
+/**
  * Inicio y fin del día calendario en `timeZone` (para consultas sent_at).
  */
 function getDayBoundsUtc(timeZone, at = DateTime.now()) {
@@ -46,5 +64,6 @@ module.exports = {
   VALID_DAYS,
   normalizeDaysWeek,
   isPreconfigurationDue,
+  isPreconfigurationMissed,
   getDayBoundsUtc
 };
