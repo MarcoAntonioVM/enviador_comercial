@@ -3,7 +3,7 @@ const { DateTime } = require('luxon');
 const log = require('../utils/logger');
 const preconfigurationService = require('../services/preconfiguration.service');
 const emailSendService = require('../services/emailSend.service');
-const { isPreconfigurationDue } = require('../utils/preconfigurationSchedule');
+const { isPreconfigurationDue, isPreconfigurationMissed } = require('../utils/preconfigurationSchedule');
 
 let task = null;
 
@@ -11,6 +11,36 @@ function getSchedulerConfig() {
   const enabled = process.env.ENABLE_PRECONFIG_SCHEDULER === 'true';
   const timezone = process.env.SCHEDULER_TIMEZONE || 'UTC';
   return { enabled, timezone };
+}
+
+/**
+ * Recupera envíos perdidos mientras el servidor estuvo caído.
+ */
+async function runCatchupSends() {
+  const { enabled, timezone } = getSchedulerConfig();
+  if (!enabled) return;
+  const now = DateTime.now().setZone(timezone);
+  let list;
+  try {
+    list = await preconfigurationService.findAllActiveForScheduler();
+  } catch (err) {
+    log.error('Catchup: failed to load preconfigurations', err);
+    return;
+  }
+  for (const row of list) {
+    const plain = typeof row.get === 'function' ? row.get({ plain: true }) : row;
+    if (!isPreconfigurationMissed(plain, now)) continue;
+    try {
+      const result = await emailSendService.executeScheduledPreconfiguration(plain.id, timezone);
+      if (result.skipped) {
+        log.info(`Catchup: preconfiguration ${plain.id} skipped (${result.reason})`);
+      } else {
+        log.info(`Catchup: preconfiguration ${plain.id} recovered and sent`);
+      }
+    } catch (err) {
+      log.error(`Catchup: preconfiguration ${plain.id} error`, err);
+    }
+  }
 }
 
 function startPreconfigurationScheduler() {
@@ -23,6 +53,9 @@ function startPreconfigurationScheduler() {
     log.warn('Preconfiguration scheduler already running');
     return;
   }
+
+  // Al arrancar, recuperar envíos que se perdieron mientras el servidor estuvo caído
+  runCatchupSends().catch((err) => log.error('Catchup: unexpected error', err));
 
   task = cron.schedule(
     '* * * * *',
@@ -70,5 +103,6 @@ async function stopPreconfigurationScheduler() {
 module.exports = {
   startPreconfigurationScheduler,
   stopPreconfigurationScheduler,
-  getSchedulerConfig
+  getSchedulerConfig,
+  runCatchupSends
 };
